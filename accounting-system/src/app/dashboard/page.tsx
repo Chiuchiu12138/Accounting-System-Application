@@ -1,14 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "../_components/shadcn/button";
+import InvoiceSearchDialogPayable from "../_components/dialogs/payable/InvoiceSearchDialog";
+import InvoiceSearchDialogRecievable from "../_components/dialogs/receivable/InvoiceSearchDialog";
+import BalanceSheetDialog from "../_components/dialogs/BalanceSheetDialog";
+import SalesAndExpenseDialog from "../_components/dialogs/SalesAndExpenseDialog";
 
 export default function Home() {
   return (
-    <div className="flex w-full min-h-[80vh] mt-12">
-      <div className="flex flex-col justify-evenly w-full p-5 bg-white rounded-lg gap-2">
-        <h2 className="text-2xl font-gigabold text-center w-full mb-7 underline underline-offset-8">
-          Account Receivable
-        </h2>
-        <div className="w-full flex flex-col">
+    <div className="mt-12 flex min-h-[80vh] w-full">
+      <div className="flex w-full flex-col justify-evenly gap-2 rounded-lg bg-white p-5">
+        <h2 className="mb-7 w-full text-center text-2xl font-gigabold underline underline-offset-8">Account Receivable</h2>
+        <div className="flex w-full flex-col">
           <Link className="w-full" href="/receivable/client-invoice">
             <Button className="w-full" variant="hightlighted">
               Client Invoice
@@ -21,12 +25,19 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <div className="w-full flex flex-col">
-          <Button variant="hightlighted">Client Payment</Button>
+        <div className="flex w-full flex-col">
+          <InvoiceSearchDialogRecievable mode="invoice"></InvoiceSearchDialogRecievable>
           <br></br>
-          <Button variant="hightlighted">Client Refund</Button>
+          <InvoiceSearchDialogRecievable mode="memo"></InvoiceSearchDialogRecievable>
         </div>
-        <div className="w-full flex flex-col">
+
+        <div className="flex w-full flex-col">
+          <Link className="w-full" href="/receivable/client-payment">
+            <Button className="w-full" variant="hightlighted">
+              Client Payment
+            </Button>
+          </Link>
+          <br></br>
           <Link className="w-full" href="/receivable/client-profile">
             <Button className="w-full" variant="hightlighted">
               Client Profile
@@ -35,43 +46,66 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="border-r-2 border-black mx-8"></div>
+      <div className="mx-8 border-r-2 border-black"></div>
 
-      <div className="flex flex-col justify-evenly w-full p-5 bg-white rounded-lg gap-2">
-        <h2 className="text-2xl font-gigabold text-center w-full mb-7 underline underline-offset-8">
-          Account Payable
-        </h2>
-        <div className="w-full flex flex-col">
-          <Button variant="hightlighted">Supplier Invoice</Button>
+      <div className="flex w-full flex-col justify-evenly gap-2 rounded-lg bg-white p-5">
+        <h2 className="mb-7 w-full text-center text-2xl font-gigabold underline underline-offset-8">Account Payable</h2>
+        <div className="flex w-full flex-col">
+          <Link className="w-full" href="/payable/client-invoice">
+            <Button className="w-full" variant="hightlighted">
+              Supplier Invoice
+            </Button>
+          </Link>
           <br></br>
-          <Button variant="hightlighted">Credit Memo</Button>
+          <Link className="w-full" href="/payable/credit-memo">
+            <Button className="w-full" variant="hightlighted">
+              Credit Memo
+            </Button>
+          </Link>
         </div>
-        <div className="w-full flex flex-col">
-          <Button variant="hightlighted">Payment to Supplier</Button>
+        <div className="flex w-full flex-col">
+          <InvoiceSearchDialogPayable mode="invoice"></InvoiceSearchDialogPayable>
           <br></br>
-          <Button variant="hightlighted">Supplier Refund</Button>
+          <InvoiceSearchDialogPayable mode="memo"></InvoiceSearchDialogPayable>
         </div>
-        <div className="w-full flex flex-col">
-          <Button className="w-full" variant="hightlighted">
-            Supplier Profile
-          </Button>
+
+        <div className="flex w-full flex-col">
+          <Link className="w-full" href="/payable/client-payment">
+            <Button className="w-full" variant="hightlighted">
+              Payment to Supplier
+            </Button>
+          </Link>
+          <br></br>
+          <Link className="w-full" href="/payable/client-profile">
+            <Button className="w-full" variant="hightlighted">
+              Supplier Profile
+            </Button>
+          </Link>
         </div>
       </div>
 
-      <div className="border-r-2 border-black mx-8"></div>
+      <div className="mx-8 border-r-2 border-black"></div>
 
-      <div className="flex flex-col justify-evenly w-full p-5 bg-white rounded-lg gap-2">
-        <h2 className="text-2xl font-gigabold text-center w-full mb-7 underline underline-offset-8">
-          Reports
-        </h2>
-        <div className="w-full flex flex-col">
-          <Button variant="hightlighted">Balance Sheet</Button>
+      <div className="flex w-full flex-col justify-evenly gap-2 rounded-lg bg-white p-5">
+        <h2 className="mb-7 w-full text-center text-2xl font-gigabold underline underline-offset-8">Reports</h2>
+        <div className="flex w-full flex-col">
+          <BalanceSheetDialog mode="balance-sheet"></BalanceSheetDialog>
           <br></br>
-          <Button variant="hightlighted">Financial Statement</Button>
+          <BalanceSheetDialog mode="financial-statement"></BalanceSheetDialog>
         </div>
-        <div className="h-[104px]"></div>
-        <div className="w-full flex flex-col">
-          <Button className="w-full" variant="hightlighted">
+        <div className="flex w-full flex-col">
+          <SalesAndExpenseDialog mode="sales"></SalesAndExpenseDialog>
+          <br></br>
+          <SalesAndExpenseDialog mode="expense"></SalesAndExpenseDialog>
+        </div>
+        <div className="flex w-full flex-col">
+          <Link className="w-full" href="/reports/chart-of-account">
+            <Button className="w-full" variant="hightlighted">
+              Chart Of Account
+            </Button>
+          </Link>
+          <br></br>
+          <Button className="invisible" variant="hightlighted">
             My Profile
           </Button>
         </div>

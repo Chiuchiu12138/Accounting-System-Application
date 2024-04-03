@@ -1,5 +1,8 @@
 import qs from "qs";
 import { Media } from "@strapiTypes/schemas-to-ts/Media";
+import axios from "axios";
+import { Invoice } from "@apiTypes/invoice/content-types/invoice/invoice";
+import { Item, Type } from "@apiTypes/item/content-types/item/item";
 
 type ImageSize = "thumbnail" | "small" | "medium" | "large";
 /**
@@ -8,10 +11,7 @@ type ImageSize = "thumbnail" | "small" | "medium" | "large";
  * @param {"thumbnail" | "xsmall" | "small" | "medium" | "large" | "xlarge"} [size="medium"] - The size, default medium.
  * @returns {string} The URL of the selected image.
  */
-export function getImageURLBySize(
-  image: Media,
-  size: ImageSize = "medium"
-): string | undefined {
+export function getImageURLBySize(image: Media, size: ImageSize = "medium"): string | undefined {
   const formats: ImageSize[] = ["thumbnail", "small", "medium", "large"];
 
   const requestedImage = image.attributes.formats[size]?.url;
@@ -25,15 +25,9 @@ export function getImageURLBySize(
     const largerFormat: ImageSize = formats[larger];
 
     if (image.attributes.formats[smallerFormat]) {
-      return (
-        process.env.NEXT_PUBLIC_API_URL +
-        image.attributes.formats[smallerFormat].url
-      );
+      return process.env.NEXT_PUBLIC_API_URL + image.attributes.formats[smallerFormat].url;
     } else if (image.attributes.formats[largerFormat]) {
-      return (
-        process.env.NEXT_PUBLIC_API_URL +
-        image.attributes.formats[largerFormat].url
-      );
+      return process.env.NEXT_PUBLIC_API_URL + image.attributes.formats[largerFormat].url;
     }
   }
 }
@@ -45,17 +39,9 @@ export function getStrapiURL(path = "") {
 /**
  * Server only.
  */
-export async function fetchAPI(
-  path: string,
-  urlParamsObject = {},
-  options = {}
-) {
+export async function fetchAPI(path: string, urlParamsObject = {}, options = {}) {
   try {
-    const { requestUrl, mergedOptions } = buildStrapiRequest(
-      path,
-      urlParamsObject,
-      options
-    );
+    const { requestUrl, mergedOptions } = buildStrapiRequest(path, urlParamsObject, options);
 
     // Trigger API call
     const response = await fetch(requestUrl, mergedOptions);
@@ -63,9 +49,7 @@ export async function fetchAPI(
     return data;
   } catch (error) {
     console.error(error);
-    throw new Error(
-      `Please check if your server is running and you set all the required tokens.`
-    );
+    throw new Error(`Please check if your server is running and you set all the required tokens.`);
   }
 }
 
@@ -77,20 +61,133 @@ export async function fetchAPIClient(requestUrl: string, mergedOptions = {}) {
     return data;
   } catch (error) {
     console.error(error);
-    throw new Error(
-      `Please check if your server is running and you set all the required tokens.`
-    );
+    throw new Error(`Please check if your server is running and you set all the required tokens.`);
   }
+}
+
+export async function postAPIClient(requestUrl: string, mergedOptions: any = {}) {
+  try {
+    // Trigger API call
+    const { headers, ...axiosOptions } = mergedOptions;
+    const response = await axios.post(requestUrl, axiosOptions, { headers });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Please check if your server is running and you set all the required tokens.`);
+  }
+}
+
+export async function putAPIClient(requestUrl: string, mergedOptions: any = {}) {
+  try {
+    // Trigger API call
+    const { headers, ...axiosOptions } = mergedOptions;
+    const response = await axios.put(requestUrl, axiosOptions, { headers });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Please check if your server is running and you set all the required tokens.`);
+  }
+}
+
+export type InvoiceWithItems = Invoice & {
+  items: ItemWithQuantity[];
+};
+
+export type ItemWithQuantity = Item & {
+  quantity: number;
+};
+
+export function getInvoiceCost(invoice: InvoiceWithItems): { subtotal: number; gst: number; qst: number; total: number } {
+  const gstTax = 0.05;
+  const qstTax = 0.0975;
+
+  let subtotal: number, qst: number, gst: number;
+  subtotal = invoice.items.reduce((accumulator, currentItem) => {
+    // Adding the line total of the current item to the accumulator
+    return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0);
+  }, 0);
+  qst = invoice.items.reduce((accumulator, currentItem) => {
+    // Adding the line total of the current item to the accumulator
+    if (currentItem.attributes.type == Type.Sales) {
+      return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0) * qstTax;
+    }
+    return accumulator;
+  }, 0);
+  gst = invoice.items.reduce((accumulator, currentItem) => {
+    // Adding the line total of the current item to the accumulator
+    if (currentItem.attributes.type == Type.Sales) {
+      return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0) * gstTax;
+    }
+    return accumulator;
+  }, 0);
+  return {
+    subtotal: subtotal,
+    gst: gst,
+    qst: qst,
+    total: subtotal + gst + qst,
+  };
+}
+
+export async function getInvoiceData(
+  isInvoice: boolean,
+  id: number | undefined,
+  clientId: number | undefined = undefined,
+): Promise<InvoiceWithItems[]> {
+  const { requestUrl, mergedOptions } = buildStrapiRequest(`/${isInvoice ? "invoices" : "memos"}`, {
+    populate: "Items,client,supplier",
+  });
+  const result = await fetchAPIClient(requestUrl, mergedOptions);
+  let invoiceReturn: InvoiceWithItems[] = [];
+
+  // if (id !== undefined) {
+  //   invoiceReturn = result.data.filter((i: any) => i.id == id);
+  // } else {
+  //   invoiceReturn = result.data;
+  // }
+
+  for (const invoice of result.data) {
+    console.log("invoice", invoice);
+    const { requestUrl, mergedOptions } = buildStrapiRequest("/items", {
+      filters: {
+        id: { $eq: invoice?.attributes.Items.map((item: { quantity: number; itemId: number }) => item.itemId) },
+      },
+    });
+    let result2 = await fetchAPIClient(requestUrl, mergedOptions);
+    result2 = result2.data.map((item: any) => {
+      const quantity = invoice?.attributes.Items.find((i: { quantity: number; itemId: number }) => {
+        return i.itemId === item.id;
+      }).quantity;
+      return { ...item, quantity: quantity };
+    });
+    delete invoice.attributes.Items;
+    invoice.items = result2;
+    invoiceReturn = invoiceReturn.concat({ ...invoice });
+    console.log(invoiceReturn);
+  }
+
+  if (id !== undefined) {
+    invoiceReturn = invoiceReturn.filter((invoice) => invoice.id === id);
+  }
+
+  if (clientId !== undefined) {
+    invoiceReturn = invoiceReturn.filter((invoice) => {
+      if (invoice.attributes.client?.data) {
+        console.log("filtering client", invoice.attributes.client?.data);
+        return invoice.attributes.client?.data.id === clientId;
+      } else if (invoice.attributes.supplier?.data) {
+        console.log("filtering supplier", invoice.attributes.supplier?.data, clientId);
+        return invoice.attributes.supplier?.data.id === clientId;
+      }
+    });
+  }
+
+  return invoiceReturn;
 }
 
 /**
  * Client only.
  */
-export function buildStrapiRequest(
-  path: string,
-  urlParamsObject = {},
-  options = {}
-) {
+export function buildStrapiRequest(path: string, urlParamsObject = {}, options = {}) {
   // Merge default and user options
   const mergedOptions = {
     next: { revalidate: 10 },
@@ -103,9 +200,7 @@ export function buildStrapiRequest(
 
   // Build request URL
   const queryString = qs.stringify(urlParamsObject);
-  const requestUrl = `${getStrapiURL(
-    `/api${path}${queryString ? `?${queryString}` : ""}`
-  )}`;
+  const requestUrl = `${getStrapiURL(`/api${path}${queryString ? `?${queryString}` : ""}`)}`;
 
   return { requestUrl, mergedOptions };
 }

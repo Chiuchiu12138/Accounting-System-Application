@@ -12,9 +12,14 @@ export default ({ env }) => {
           amazon: "https://email.us-east-1.amazonaws.com",
         },
         settings: {
-          defaultFrom: "",
-          defaultReplyTo: "",
+          defaultFrom: "danielfirpodev@gmail.com",
+          defaultReplyTo: "danielfirpodev@gmail.com",
         },
+      },
+    },
+    "strapi-plugin-populate-deep": {
+      config: {
+        defaultDepth: 3, // Default is 5
       },
     },
   };

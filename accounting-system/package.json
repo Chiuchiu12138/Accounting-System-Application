@@ -8,6 +8,13 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "prettier": {
+    "printWidth": 130,
+    "plugins": [
+      "prettier-plugin-classnames",
+      "prettier-plugin-tailwindcss"
+    ]
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@iconify/tailwind": "^0.1.4",
@@ -23,6 +30,7 @@
     "axios": "^1.6.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.0.0-rc22",
     "framer-motion": "^11.0.3",
@@ -36,6 +44,7 @@
     "react-dom": "^18",
     "react-fast-marquee": "^1.6.4",
     "react-hook-form": "^7.50.1",
+    "strapi-plugin-populate-deep": "^3.0.1",
     "swr": "^2.2.5",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",

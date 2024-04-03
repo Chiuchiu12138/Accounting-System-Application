@@ -742,7 +742,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     username: Attribute.String &
@@ -771,6 +770,16 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    clients: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::client.client'
+    >;
+    suppliers: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::supplier.supplier'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -781,6 +790,209 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'plugin::users-permissions.user',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiClientClient extends Schema.CollectionType {
+  collectionName: 'clients';
+  info: {
+    singularName: 'client';
+    pluralName: 'clients';
+    displayName: 'Client';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    phone: Attribute.String;
+    email: Attribute.String;
+    address: Attribute.String;
+    invoices: Attribute.Relation<
+      'api::client.client',
+      'oneToMany',
+      'api::invoice.invoice'
+    >;
+    memos: Attribute.Relation<
+      'api::client.client',
+      'oneToMany',
+      'api::memo.memo'
+    >;
+    user: Attribute.Relation<
+      'api::client.client',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::client.client',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::client.client',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiInvoiceInvoice extends Schema.CollectionType {
+  collectionName: 'invoices';
+  info: {
+    singularName: 'invoice';
+    pluralName: 'invoices';
+    displayName: 'Invoice';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    date: Attribute.Date;
+    client: Attribute.Relation<
+      'api::invoice.invoice',
+      'manyToOne',
+      'api::client.client'
+    >;
+    supplier: Attribute.Relation<
+      'api::invoice.invoice',
+      'manyToOne',
+      'api::supplier.supplier'
+    >;
+    amountPaid: Attribute.Decimal;
+    Items: Attribute.Component<'item.items-test', true>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::invoice.invoice',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::invoice.invoice',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiItemItem extends Schema.CollectionType {
+  collectionName: 'items';
+  info: {
+    singularName: 'item';
+    pluralName: 'items';
+    displayName: 'Item';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    inventory: Attribute.Integer;
+    description: Attribute.String;
+    unitPrice: Attribute.Decimal;
+    type: Attribute.Enumeration<['sales', 'labor', 'misc']>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::item.item', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiMemoMemo extends Schema.CollectionType {
+  collectionName: 'memos';
+  info: {
+    singularName: 'memo';
+    pluralName: 'memos';
+    displayName: 'Memo';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    client: Attribute.Relation<
+      'api::memo.memo',
+      'manyToOne',
+      'api::client.client'
+    >;
+    supplier: Attribute.Relation<
+      'api::memo.memo',
+      'manyToOne',
+      'api::supplier.supplier'
+    >;
+    amountPaid: Attribute.Decimal;
+    date: Attribute.Date;
+    Items: Attribute.Component<'item.items-test', true>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::memo.memo', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::memo.memo', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiSupplierSupplier extends Schema.CollectionType {
+  collectionName: 'suppliers';
+  info: {
+    singularName: 'supplier';
+    pluralName: 'suppliers';
+    displayName: 'Supplier';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    phone: Attribute.String;
+    email: Attribute.String;
+    address: Attribute.String;
+    invoices: Attribute.Relation<
+      'api::supplier.supplier',
+      'oneToMany',
+      'api::invoice.invoice'
+    >;
+    memos: Attribute.Relation<
+      'api::supplier.supplier',
+      'oneToMany',
+      'api::memo.memo'
+    >;
+    user: Attribute.Relation<
+      'api::supplier.supplier',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::supplier.supplier',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::supplier.supplier',
       'oneToOne',
       'admin::user'
     > &
@@ -806,6 +1018,11 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'api::client.client': ApiClientClient;
+      'api::invoice.invoice': ApiInvoiceInvoice;
+      'api::item.item': ApiItemItem;
+      'api::memo.memo': ApiMemoMemo;
+      'api::supplier.supplier': ApiSupplierSupplier;
     }
   }
 }

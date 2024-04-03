@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_item_items_tests",
+  "info": {
+    "displayName": "Items",
+    "icon": "cube",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "quantity": {
+      "type": "decimal",
+      "default": 0
+    },
+    "itemId": {
+      "type": "integer"
+    }
+  }
+}

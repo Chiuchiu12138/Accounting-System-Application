@@ -1,39 +1,40 @@
 "use client";
 
+import ProfileSearchDialog from "../../_components/dialogs/receivable/ProfileSearchDialog";
+import CreateProfileDialog from "../../_components/dialogs/receivable/CreateProfileDialog";
 import { useState } from "react";
-import { Button } from "../../_components/shadcn/button";
-import ProfileSearchDialog from "../../_components/dialogs/ProfileSearchDialog";
+import { Client } from "@apiTypes/client/content-types/client/client";
 
 export default function ClientInvoice() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | undefined>();
 
   return (
     <div>
-      <div className="flex mt-10 justify-between">
-        <ProfileSearchDialog></ProfileSearchDialog>
-        <Button variant="hightlighted">Create New</Button>
+      <div className="mt-10 flex justify-between">
+        <ProfileSearchDialog setSelectedClient={setSelectedClient}></ProfileSearchDialog>
+        <CreateProfileDialog setSelectedClient={setSelectedClient}></CreateProfileDialog>
       </div>
-      <div className="min-h-[60vh] flex items-center w-full">
-        <div className="flex flex-col font-gigabold gap-2 w-full">
+      <div className="flex min-h-[60vh] w-full items-center">
+        <div className="flex w-full flex-col gap-2 font-gigabold">
           <div className="flex gap-4">
             <div className="w-1/2">Client ID:</div>
-            <div className="w-full bg-white p-2 rounded-lg"></div>
+            <div className="w-full rounded-lg bg-white p-2">{selectedClient ? selectedClient.id : "N/A"}</div>
           </div>
           <div className="flex gap-4">
             <div className="w-1/2">Client Name:</div>
-            <div className="w-full bg-white p-2 rounded-lg"></div>
+            <div className="w-full rounded-lg bg-white p-2">{selectedClient ? selectedClient.attributes.name : "N/A"}</div>
           </div>
           <div className="flex gap-4">
             <div className="w-1/2">Tel #:</div>
-            <div className="w-full bg-white p-2 rounded-lg"></div>
+            <div className="w-full rounded-lg bg-white p-2">{selectedClient ? selectedClient.attributes.phone : "N/A"}</div>
           </div>
           <div className="flex gap-4">
             <div className="w-1/2">Email:</div>
-            <div className="w-full bg-white p-2 rounded-lg"></div>
+            <div className="w-full rounded-lg bg-white p-2">{selectedClient ? selectedClient.attributes.email : "N/A"}</div>
           </div>
           <div className="flex gap-4">
             <div className="w-1/2">Address:</div>
-            <div className="w-full bg-white p-2 rounded-lg"></div>
+            <div className="w-full rounded-lg bg-white p-2">{selectedClient ? selectedClient.attributes.address : "N/A"}</div>
           </div>
         </div>
       </div>
