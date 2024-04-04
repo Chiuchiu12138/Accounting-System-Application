@@ -3,8 +3,8 @@ services:
     name: strapi
     env: node
     plan: starter
-    buildCommand: yarn install && yarn build
-    startCommand: rsync -a public/ /public/ && yarn start
+    buildCommand: cd backend && npm install && npm build
+    startCommand: rsync -a public/ /public/ && npm start
     healthCheckPath: /_health
     autoDeploy: false
     disk:
