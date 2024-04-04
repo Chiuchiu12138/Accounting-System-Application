@@ -14,6 +14,8 @@ import {
 } from "../../_components/shadcn/table";
 import { Input } from "../../_components/shadcn/input";
 import { Button } from "../../_components/shadcn/button";
+import { useState, useEffect, memo } from "react";
+import { InvoiceWithItems, getInvoiceData } from "../../_utils/strapiApi";
 
 export default function SalesRecord() {
   // ?showPaid=true&from=2024-04-03T07:00:00.000Z&to=2024-04-18T07:00:00.000Z
@@ -26,36 +28,36 @@ export default function SalesRecord() {
 
   console.log(from, to, showPaid);
 
-  let invoices = [
-    {
-      id: "124124214",
-      clientId: "01234101",
-      clientName: "Placeholder",
-      date: "Some Date",
-      salesTotal: "100.00",
-      gst: "5",
-      qst: "9.75",
-      invoiceTotal: "114.75",
-      isPaid: false,
-    },
-    {
-      id: "1242322334",
-      clientId: "01234101",
-      clientName: "Placeholder",
-      date: "Some Date",
-      salesTotal: "1000.00",
-      gst: "50",
-      qst: "97.5",
-      invoiceTotal: "1147.5",
-      isPaid: true,
-    },
-  ];
+  const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
+  // const [memoData, setMemoData] = useState<InvoiceWithItems[]>([]);
 
-  if (!showPaid) {
-    invoices = invoices.filter((invoice) => {
-      return !invoice.isPaid;
-    });
-  }
+  useEffect(() => {
+    async function fetchData() {
+      let invoices = await getInvoiceData(true, undefined, undefined);
+      invoices = invoices.filter((invoice) => invoice.attributes.client?.data);
+      console.log(invoices);
+
+      let memos = await getInvoiceData(false, undefined, undefined);
+      memos = memos.filter((memo) => memo.attributes.client?.data);
+      console.log(memos);
+      // setMemoData(memos);
+
+      setInvoiceData(invoices.concat(memos));
+    }
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!showPaid) {
+      setInvoiceData(
+        invoiceData.filter((invoice) => {
+          return invoice.attributes.amountPaid !== Math.abs(invoice.cost.total);
+        }),
+      );
+    }
+  }, [invoiceData]);
+
+  console.log(invoiceData);
 
   return (
     <div>
@@ -78,19 +80,23 @@ export default function SalesRecord() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((item) => (
-            <TableRow key={item.clientId}>
-              <TableCell className="font-medium">{item.clientId}</TableCell>
-              <TableCell>{item.clientName}</TableCell>
+          {invoiceData.map((item) => (
+            <TableRow key={item.attributes.client?.data?.id}>
+              <TableCell className="font-medium">{item.attributes.client?.data?.id}</TableCell>
+              <TableCell>{item.attributes.client?.data?.attributes?.name}</TableCell>
               <TableCell>{item.id}</TableCell>
-              <TableCell>{item.date}</TableCell>
-              <TableCell>${item.salesTotal}</TableCell>
-              <TableCell>${item.gst}</TableCell>
-              <TableCell>${item.qst}</TableCell>
-              <TableCell>${item.invoiceTotal}</TableCell>
+              <TableCell>{item.attributes.date?.toString() ?? ""}</TableCell>
+              <TableCell>${item.cost.subtotal.toFixed(2)}</TableCell>
+              <TableCell>${item.cost.gst.toFixed(2)}</TableCell>
+              <TableCell>${item.cost.qst.toFixed(2)}</TableCell>
+              <TableCell>${item.cost.total.toFixed(2)}</TableCell>
               <TableCell>
                 <div>
-                  <Input type="checkbox" className="ml-auto mr-5 h-4 w-4" checked={item.isPaid} />
+                  <Input
+                    type="checkbox"
+                    className="ml-auto mr-5 h-4 w-4"
+                    checked={item.attributes.amountPaid === Math.abs(item.cost.total)}
+                  />
                 </div>
               </TableCell>
             </TableRow>
@@ -99,38 +105,39 @@ export default function SalesRecord() {
         <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
+            <TableCell></TableCell>
             <TableCell>
               $
-              {invoices
+              {invoiceData
                 .reduce((accumulator, currentItem) => {
-                  const salesTotal = parseFloat(currentItem.salesTotal);
+                  const salesTotal = currentItem.cost.subtotal;
                   return accumulator + salesTotal;
                 }, 0)
                 .toFixed(2)}
             </TableCell>
             <TableCell>
               $
-              {invoices
+              {invoiceData
                 .reduce((accumulator, currentItem) => {
-                  const val = parseFloat(currentItem.gst);
+                  const val = currentItem.cost.gst;
                   return accumulator + val;
                 }, 0)
                 .toFixed(2)}
             </TableCell>
             <TableCell>
               $
-              {invoices
+              {invoiceData
                 .reduce((accumulator, currentItem) => {
-                  const val = parseFloat(currentItem.qst);
+                  const val = currentItem.cost.qst;
                   return accumulator + val;
                 }, 0)
                 .toFixed(2)}
             </TableCell>
             <TableCell colSpan={3}>
               $
-              {invoices
+              {invoiceData
                 .reduce((accumulator, currentItem) => {
-                  const val = parseFloat(currentItem.invoiceTotal);
+                  const val = currentItem.cost.total;
                   return accumulator + val;
                 }, 0)
                 .toFixed(2)}

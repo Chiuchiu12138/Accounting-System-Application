@@ -14,8 +14,10 @@ import {
 } from "../../_components/shadcn/table";
 import { Input } from "../../_components/shadcn/input";
 import { Button } from "../../_components/shadcn/button";
+import { useState, useEffect, memo } from "react";
+import { InvoiceWithItems, getInvoiceData } from "../../_utils/strapiApi";
 
-export default function ExpenseRecord() {
+export default function SalesRecord() {
   // ?showPaid=true&from=2024-04-03T07:00:00.000Z&to=2024-04-18T07:00:00.000Z
   const searchParams = useSearchParams();
 
@@ -26,49 +28,49 @@ export default function ExpenseRecord() {
 
   console.log(from, to, showPaid);
 
-  let invoices = [
-    {
-      id: "2891375",
-      supplierId: "01234101",
-      supplierName: "Placeholder",
-      date: "Some Date",
-      salesTotal: "100.00",
-      gst: "5",
-      qst: "9.75",
-      invoiceTotal: "114.75",
-      isPaid: false,
-    },
-    {
-      id: "2891375",
-      supplierId: "01234101",
-      supplierName: "Placeholder",
-      date: "Some Date",
-      salesTotal: "1000.00",
-      gst: "50",
-      qst: "97.5",
-      invoiceTotal: "1147.5",
-      isPaid: true,
-    },
-  ];
+  const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
+  // const [memoData, setMemoData] = useState<InvoiceWithItems[]>([]);
 
-  if (!showPaid) {
-    invoices = invoices.filter((invoice) => {
-      return !invoice.isPaid;
-    });
-  }
+  useEffect(() => {
+    async function fetchData() {
+      let invoices = await getInvoiceData(true, undefined, undefined);
+      invoices = invoices.filter((invoice) => invoice.attributes.supplier?.data);
+      console.log(invoices);
+
+      let memos = await getInvoiceData(false, undefined, undefined);
+      memos = memos.filter((memo) => memo.attributes.supplier?.data);
+      console.log(memos);
+      // setMemoData(memos);
+
+      setInvoiceData(invoices.concat(memos));
+    }
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!showPaid) {
+      setInvoiceData(
+        invoiceData.filter((invoice) => {
+          return invoice.attributes.amountPaid !== Math.abs(invoice.cost.total);
+        }),
+      );
+    }
+  }, [showPaid]);
+
+  console.log(invoiceData);
 
   return (
     <div>
-      <h1 className="mb-4 mt-8 text-center text-3xl font-gigabold">{showPaid ? "Expense Report" : "Account Payable Report"}</h1>
+      <h1 className="mb-4 mt-8 text-center text-3xl font-gigabold">{showPaid ? "Sales Report" : "Account Receivable Report"}</h1>
       <h1 className="mb-12 text-center text-xl font-gigabold">
         {from.toDateString()} - {to.toDateString()}
       </h1>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[150px]">Supplier ID</TableHead>
+            <TableHead className="w-[120px]">Supplier ID</TableHead>
             <TableHead>Supplier Name</TableHead>
-            <TableHead>Invoice #</TableHead>
+            <TableHead>Invoice ID</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Sales Total</TableHead>
             <TableHead>GST</TableHead>
@@ -78,19 +80,23 @@ export default function ExpenseRecord() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((item) => (
-            <TableRow key={item.supplierId}>
-              <TableCell className="font-medium">{item.supplierId}</TableCell>
-              <TableCell>{item.supplierName}</TableCell>
+          {invoiceData.map((item) => (
+            <TableRow key={item.attributes.supplier?.data?.id}>
+              <TableCell className="font-medium">{item.attributes.supplier?.data?.id}</TableCell>
+              <TableCell>{item.attributes.supplier?.data?.attributes?.name}</TableCell>
               <TableCell>{item.id}</TableCell>
-              <TableCell>{item.date}</TableCell>
-              <TableCell>${item.salesTotal}</TableCell>
-              <TableCell>${item.gst}</TableCell>
-              <TableCell>${item.qst}</TableCell>
-              <TableCell>${item.invoiceTotal}</TableCell>
+              <TableCell>{item.attributes.date?.toString() ?? ""}</TableCell>
+              <TableCell>${item.cost.subtotal.toFixed(2)}</TableCell>
+              <TableCell>${item.cost.gst.toFixed(2)}</TableCell>
+              <TableCell>${item.cost.qst.toFixed(2)}</TableCell>
+              <TableCell>${item.cost.total.toFixed(2)}</TableCell>
               <TableCell>
                 <div>
-                  <Input type="checkbox" className="ml-auto mr-5 h-4 w-4" checked={item.isPaid} />
+                  <Input
+                    type="checkbox"
+                    className="ml-auto mr-5 h-4 w-4"
+                    checked={item.attributes.amountPaid === Math.abs(item.cost.total)}
+                  />
                 </div>
               </TableCell>
             </TableRow>
@@ -98,39 +104,40 @@ export default function ExpenseRecord() {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={4}>Total</TableCell>
+            <TableCell></TableCell>
+            <TableCell colSpan={3}>Total</TableCell>
             <TableCell>
               $
-              {invoices
+              {invoiceData
                 .reduce((accumulator, currentItem) => {
-                  const salesTotal = parseFloat(currentItem.salesTotal);
+                  const salesTotal = currentItem.cost.subtotal;
                   return accumulator + salesTotal;
                 }, 0)
                 .toFixed(2)}
             </TableCell>
             <TableCell>
               $
-              {invoices
+              {invoiceData
                 .reduce((accumulator, currentItem) => {
-                  const val = parseFloat(currentItem.gst);
+                  const val = currentItem.cost.gst;
                   return accumulator + val;
                 }, 0)
                 .toFixed(2)}
             </TableCell>
             <TableCell>
               $
-              {invoices
+              {invoiceData
                 .reduce((accumulator, currentItem) => {
-                  const val = parseFloat(currentItem.qst);
+                  const val = currentItem.cost.qst;
                   return accumulator + val;
                 }, 0)
                 .toFixed(2)}
             </TableCell>
-            <TableCell colSpan={2}>
+            <TableCell colSpan={3}>
               $
-              {invoices
+              {invoiceData
                 .reduce((accumulator, currentItem) => {
-                  const val = parseFloat(currentItem.invoiceTotal);
+                  const val = currentItem.cost.total;
                   return accumulator + val;
                 }, 0)
                 .toFixed(2)}

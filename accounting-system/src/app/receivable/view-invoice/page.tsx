@@ -14,7 +14,7 @@ import {
 } from "../../_components/shadcn/table";
 
 import { useSearchParams } from "next/navigation";
-import { InvoiceWithItems, ItemWithQuantity, getInvoiceCost, getInvoiceData } from "../../_utils/strapiApi";
+import { InvoiceWithItems, getInvoiceCost, getInvoiceData } from "../../_utils/strapiApi";
 import { Client } from "@apiTypes/client/content-types/client/client";
 
 export default function ViewInvoice() {

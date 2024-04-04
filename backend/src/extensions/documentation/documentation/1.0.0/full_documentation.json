@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2024-04-03T01:11:24.943Z"
+    "x-generation-date": "2024-04-03T21:21:04.711Z"
   },
   "x-strapi-config": {
     "path": "/documentation",
@@ -992,6 +992,9 @@
                                                       }
                                                     }
                                                   },
+                                                  "memoOrInvoice": {
+                                                    "type": "string"
+                                                  },
                                                   "createdAt": {
                                                     "type": "string",
                                                     "format": "date-time"
@@ -1152,6 +1155,9 @@
                               }
                             }
                           }
+                        },
+                        "memoOrInvoice": {
+                          "type": "string"
                         },
                         "createdAt": {
                           "type": "string",
@@ -1357,6 +1363,9 @@
                 "items": {
                   "$ref": "#/components/schemas/ItemItemsTestComponent"
                 }
+              },
+              "memoOrInvoice": {
+                "type": "string"
               }
             }
           }
@@ -1591,6 +1600,9 @@
                                                                     }
                                                                   }
                                                                 }
+                                                              },
+                                                              "memoOrInvoice": {
+                                                                "type": "string"
                                                               },
                                                               "createdAt": {
                                                                 "type": "string",
@@ -2265,6 +2277,9 @@
                                         }
                                       }
                                     },
+                                    "memoOrInvoice": {
+                                      "type": "string"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -2433,6 +2448,9 @@
             "items": {
               "$ref": "#/components/schemas/ItemItemsTestComponent"
             }
+          },
+          "memoOrInvoice": {
+            "type": "string"
           },
           "createdAt": {
             "type": "string",
@@ -2989,6 +3007,9 @@
                 "items": {
                   "$ref": "#/components/schemas/ItemItemsTestComponent"
                 }
+              },
+              "memoOrInvoice": {
+                "type": "string"
               }
             }
           }
@@ -3219,6 +3240,9 @@
                                                                     }
                                                                   }
                                                                 }
+                                                              },
+                                                              "memoOrInvoice": {
+                                                                "type": "string"
                                                               },
                                                               "createdAt": {
                                                                 "type": "string",
@@ -3893,6 +3917,9 @@
                                         }
                                       }
                                     },
+                                    "memoOrInvoice": {
+                                      "type": "string"
+                                    },
                                     "createdAt": {
                                       "type": "string",
                                       "format": "date-time"
@@ -4065,6 +4092,9 @@
             "items": {
               "$ref": "#/components/schemas/ItemItemsTestComponent"
             }
+          },
+          "memoOrInvoice": {
+            "type": "string"
           },
           "createdAt": {
             "type": "string",
@@ -5042,6 +5072,9 @@
                                                       }
                                                     }
                                                   },
+                                                  "memoOrInvoice": {
+                                                    "type": "string"
+                                                  },
                                                   "createdAt": {
                                                     "type": "string",
                                                     "format": "date-time"
@@ -5202,6 +5235,9 @@
                               }
                             }
                           }
+                        },
+                        "memoOrInvoice": {
+                          "type": "string"
                         },
                         "createdAt": {
                           "type": "string",

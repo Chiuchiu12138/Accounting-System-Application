@@ -4,6 +4,9 @@ import { useSearchParams } from "next/navigation";
 
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../_components/shadcn/table";
 import { Button } from "../../_components/shadcn/button";
+import { useEffect, useState } from "react";
+import { InvoiceWithItems, getInvoiceData } from "../../_utils/strapiApi";
+import { Type } from "@apiTypes/item/content-types/item/item";
 
 export default function FinancialStatement() {
   // ?from=2024-04-03T07:00:00.000Z&to=2024-04-18T07:00:00.000Z
@@ -11,24 +14,125 @@ export default function FinancialStatement() {
 
   const date: Date = new Date(decodeURIComponent(searchParams.get("from") ?? new Date().toISOString()));
 
+  const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
+  const [memoData, setMemoData] = useState<InvoiceWithItems[]>([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      let invoices = await getInvoiceData(true, undefined, undefined);
+      console.log(invoices);
+      setInvoiceData(invoices);
+
+      let memos = await getInvoiceData(false, undefined, undefined);
+      console.log(memos);
+      setMemoData(memos);
+    }
+    fetchData();
+  }, []);
+
+  const totalMemoClient = { items: 0, salary: 0, misc: 0 };
+
+  memoData.forEach((currentItem) => {
+    console.log("looping", currentItem.attributes.amountPaid, currentItem.cost.total);
+    //if client invoice and is paid
+    if (currentItem.attributes.client?.data && currentItem.attributes.amountPaid === Math.abs(currentItem.cost.total)) {
+      console.log("map thro if");
+      currentItem.items.forEach((currentItem) => {
+        if (currentItem.attributes.type === Type.Sales) {
+          totalMemoClient.items += currentItem.attributes.unitPrice! * currentItem.quantity;
+        } else if (currentItem.attributes.type === Type.Labor) {
+          totalMemoClient.salary += currentItem.attributes.unitPrice! * currentItem.quantity;
+        } else if (currentItem.attributes.type === Type.Misc) {
+          totalMemoClient.misc += currentItem.attributes.unitPrice! * currentItem.quantity;
+        }
+      });
+    }
+  });
+
+  const totalInvoiceClient = { items: 0, salary: 0, misc: 0 };
+
+  invoiceData.concat(memoData).forEach((currentItem) => {
+    // console.log("looping", currentItem.attributes.amountPaid, currentItem.cost.total);
+    //if client invoice and is paid
+    if (currentItem.attributes.client?.data) {
+      let isMemo = currentItem.attributes.memoOrInvoice === "invoice" ? 1 : -1;
+      // console.log("map thro if");
+      currentItem.items.forEach((currentItem) => {
+        if (currentItem.attributes.type === Type.Sales) {
+          totalInvoiceClient.items += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        } else if (currentItem.attributes.type === Type.Labor) {
+          totalInvoiceClient.salary += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        } else if (currentItem.attributes.type === Type.Misc) {
+          totalInvoiceClient.misc += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        }
+      });
+    }
+  });
+
+  const totalMemoSupplier = { items: 0, salary: 0, misc: 0 };
+
+  memoData.forEach((currentItem) => {
+    console.log("looping", currentItem.attributes.amountPaid, currentItem.cost.total);
+    //if client invoice and is paid
+    if (currentItem.attributes.supplier?.data) {
+      let isMemo = currentItem.attributes.memoOrInvoice === "invoice" ? 1 : -1;
+      console.log("map thro if");
+      currentItem.items.forEach((currentItem) => {
+        if (currentItem.attributes.type === Type.Sales) {
+          totalMemoSupplier.items += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        } else if (currentItem.attributes.type === Type.Labor) {
+          totalMemoSupplier.salary += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        } else if (currentItem.attributes.type === Type.Misc) {
+          totalMemoSupplier.misc += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        }
+      });
+    }
+  });
+
+  const totalInvoiceSupplier = { items: 0, salary: 0, misc: 0 };
+
+  invoiceData.concat(memoData).forEach((currentItem) => {
+    // console.log("looping", currentItem.attributes.amountPaid, currentItem.cost.total);
+    //if client invoice and is paid
+    if (currentItem.attributes.supplier?.data) {
+      let isMemo = currentItem.attributes.memoOrInvoice === "invoice" ? 1 : -1;
+      // console.log("map thro if");
+      currentItem.items.forEach((currentItem) => {
+        if (currentItem.attributes.type === Type.Sales) {
+          totalInvoiceSupplier.items += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        } else if (currentItem.attributes.type === Type.Labor) {
+          totalInvoiceSupplier.salary += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        } else if (currentItem.attributes.type === Type.Misc) {
+          totalInvoiceSupplier.misc += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
+        }
+      });
+    }
+  });
+
+  console.log("memo total", totalMemoClient);
+  console.log("inv total", totalInvoiceClient);
+
+  console.log("memo total suppl", totalMemoSupplier);
+  console.log("inv total supp", totalInvoiceSupplier);
+
+  //defualt credit
   //move negative to other column
   const revenue = {
-    salesDebit: 0,
-    salesCredit: 2100, //sum all client invoice sales, no taxes
-    salaryDebit: 0,
-    salaryCredit: 300, //sum all client invoice salaries, no taxes
-    miscDebit: 0,
-    miscCredit: 500, //sum all client invoice misc, no taxes
+    sales: totalInvoiceClient.items, //sum all paid client invoice sales, no taxes
+    salary: totalInvoiceClient.salary, //sum all client invoice salaries, no taxes
+    misc: totalInvoiceClient.misc, //sum all client invoice misc, no taxes
   };
 
+  //default debit
+  //move negative to other column
   const expense = {
-    purchaseDebit: 1100, //sum all supplier invoice sales, no taxes
-    purchaseCredit: 0,
-    rentDebit: 100, //sum all supplier invoice rent, no taxes
-    rentCredit: 0,
-    miscDebit: 300, //sum all supplier invoice misc, no taxes
-    miscCredit: 0,
+    purchase: totalInvoiceSupplier.items, //sum all supplier invoice sales, no taxes
+    rent: totalInvoiceSupplier.salary, //sum all supplier invoice rent, no taxes
+    misc: totalInvoiceSupplier.misc, //sum all supplier invoice misc, no taxes
   };
+
+  const totalRevenue = revenue.sales + revenue.salary + revenue.misc;
+  const totalExpense = expense.purchase + expense.rent + expense.misc;
 
   return (
     <div>
@@ -50,23 +154,28 @@ export default function FinancialStatement() {
           <TableRow>
             <TableCell></TableCell>
             <TableCell>Sales</TableCell>
-            <TableCell>{revenue.salesDebit.toFixed(2)}</TableCell>
-            <TableCell>{revenue.salesCredit.toFixed(2)}</TableCell>
+            <TableCell>{revenue.sales < 0 ? revenue.sales.toFixed(2).replace(/-/g, "") : ""}</TableCell>
+            <TableCell>{revenue.sales >= 0 ? revenue.sales.toFixed(2) : ""}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell></TableCell>
             <TableCell>Salary</TableCell>
-            <TableCell>{revenue.salaryDebit.toFixed(2)}</TableCell>
-            <TableCell>{revenue.salaryCredit.toFixed(2)}</TableCell>
+            <TableCell>{revenue.salary < 0 ? revenue.salary.toFixed(2).replace(/-/g, "") : ""}</TableCell>
+            <TableCell>{revenue.salary >= 0 ? revenue.salary.toFixed(2) : ""}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell></TableCell>
             <TableCell>Misc Income</TableCell>
-            <TableCell>{revenue.miscDebit.toFixed(2)}</TableCell>
-            <TableCell>{revenue.miscCredit.toFixed(2)}</TableCell>
+            <TableCell>{revenue.misc < 0 ? revenue.misc.toFixed(2).replace(/-/g, "") : ""}</TableCell>
+            <TableCell>{revenue.misc >= 0 ? revenue.misc.toFixed(2) : ""}</TableCell>
           </TableRow>
 
-          {/* total rev and put total under credit*/}
+          <TableRow className="border-t-2 border-t-black">
+            <TableCell>Total Revenue</TableCell>
+            <TableCell></TableCell>
+            <TableCell>{totalRevenue <= 0 ? "$" + totalRevenue.toFixed(2) : ""}</TableCell>
+            <TableCell>{totalRevenue > 0 ? "$" + totalRevenue.toFixed(2) : ""}</TableCell>
+          </TableRow>
 
           <TableRow>
             <TableCell className="font-gigabold">Expense</TableCell>
@@ -74,21 +183,28 @@ export default function FinancialStatement() {
           <TableRow>
             <TableCell></TableCell>
             <TableCell>Purchase</TableCell>
-            <TableCell>{expense.purchaseDebit.toFixed(2)}</TableCell>
-            <TableCell>{expense.purchaseCredit.toFixed(2)}</TableCell>
+            <TableCell>{expense.purchase >= 0 ? expense.purchase.toFixed(2) : ""}</TableCell>
+            <TableCell>{expense.purchase < 0 ? expense.purchase.toFixed(2).replace(/-/g, "") : ""}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell></TableCell>
             <TableCell>Rent</TableCell>
-            <TableCell>{expense.rentDebit.toFixed(2)}</TableCell>
-            <TableCell>{expense.rentCredit.toFixed(2)}</TableCell>
+            <TableCell>{expense.rent >= 0 ? expense.rent.toFixed(2) : ""}</TableCell>
+            <TableCell>{expense.rent < 0 ? expense.rent.toFixed(2).replace(/-/g, "") : ""}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell></TableCell>
             <TableCell>Misc Expense</TableCell>
-            <TableCell>{expense.miscDebit.toFixed(2)}</TableCell>
-            <TableCell>{expense.miscCredit.toFixed(2)}</TableCell>
+            <TableCell>{expense.misc >= 0 ? expense.misc.toFixed(2) : ""}</TableCell>
+            <TableCell>{expense.misc < 0 ? expense.misc.toFixed(2).replace(/-/g, "") : ""}</TableCell>
           </TableRow>
+          <TableRow className="border-t-2 border-t-black">
+            <TableCell>Total Expense</TableCell>
+            <TableCell></TableCell>
+            <TableCell>{totalExpense > 0 ? "$" + totalExpense.toFixed(2) : ""}</TableCell>
+            <TableCell>{totalExpense <= 0 ? "$" + totalExpense.toFixed(2) : ""}</TableCell>
+          </TableRow>
+          <TableRow className="border-t-2 border-t-black"></TableRow>
 
           {/* total rev and put total under credit*/}
         </TableBody>
@@ -97,21 +213,9 @@ export default function FinancialStatement() {
             <TableCell className="font-gigabold" colSpan={2}>
               P&L
             </TableCell>
-            {/* sum all rev debits subtract with all rev credits, repeat for expense then add together rev and expense numbers */}
-            <TableCell className="font-gigabold">
-              $
-              {(
-                revenue.salaryDebit +
-                revenue.salesDebit +
-                revenue.miscDebit -
-                (revenue.salaryCredit + revenue.salesCredit + revenue.miscCredit) +
-                (expense.purchaseDebit +
-                  expense.rentDebit +
-                  expense.miscDebit -
-                  (expense.purchaseCredit + expense.rentCredit + expense.miscCredit))
-              ).toFixed(2)}
-            </TableCell>
             <TableCell></TableCell>
+            {/* sum all rev debits subtract with all rev credits, repeat for expense then add together rev and expense numbers */}
+            <TableCell className="text-right font-gigabold">${(totalRevenue - totalExpense).toFixed(2)}</TableCell>
           </TableRow>
         </TableFooter>
       </Table>

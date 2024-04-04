@@ -871,6 +871,7 @@ export interface ApiInvoiceInvoice extends Schema.CollectionType {
     >;
     amountPaid: Attribute.Decimal;
     Items: Attribute.Component<'item.items-test', true>;
+    memoOrInvoice: Attribute.String & Attribute.DefaultTo<'invoice'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -941,6 +942,7 @@ export interface ApiMemoMemo extends Schema.CollectionType {
     amountPaid: Attribute.Decimal;
     date: Attribute.Date;
     Items: Attribute.Component<'item.items-test', true>;
+    memoOrInvoice: Attribute.String & Attribute.DefaultTo<'memo'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

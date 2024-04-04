@@ -17,6 +17,7 @@ export interface Invoice {
     supplier?: { data: Supplier };
     amountPaid?: number;
     Items: ItemsTest[];
+    memoOrInvoice?: string;
   };
 }
 export interface Invoice_Plain {
@@ -26,6 +27,7 @@ export interface Invoice_Plain {
   supplier?: Supplier_Plain;
   amountPaid?: number;
   Items: ItemsTest_Plain[];
+  memoOrInvoice?: string;
 }
 
 export interface Invoice_NoRelations {
@@ -35,6 +37,7 @@ export interface Invoice_NoRelations {
   supplier?: number;
   amountPaid?: number;
   Items: ItemsTest_NoRelations[];
+  memoOrInvoice?: string;
 }
 
 export interface Invoice_AdminPanelLifeCycle {
@@ -44,4 +47,5 @@ export interface Invoice_AdminPanelLifeCycle {
   supplier?: AdminPanelRelationPropertyModification<Supplier_Plain>;
   amountPaid?: number;
   Items: ItemsTest_Plain[];
+  memoOrInvoice?: string;
 }

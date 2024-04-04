@@ -17,6 +17,7 @@ export interface Memo {
     amountPaid?: number;
     date?: Date;
     Items: ItemsTest[];
+    memoOrInvoice?: string;
   };
 }
 export interface Memo_Plain {
@@ -26,6 +27,7 @@ export interface Memo_Plain {
   amountPaid?: number;
   date?: Date;
   Items: ItemsTest_Plain[];
+  memoOrInvoice?: string;
 }
 
 export interface Memo_NoRelations {
@@ -35,6 +37,7 @@ export interface Memo_NoRelations {
   amountPaid?: number;
   date?: Date;
   Items: ItemsTest_NoRelations[];
+  memoOrInvoice?: string;
 }
 
 export interface Memo_AdminPanelLifeCycle {
@@ -44,4 +47,5 @@ export interface Memo_AdminPanelLifeCycle {
   amountPaid?: number;
   date?: Date;
   Items: ItemsTest_Plain[];
+  memoOrInvoice?: string;
 }

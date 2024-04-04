@@ -50,8 +50,11 @@ export default function CreateInvoiceOrMemo() {
     async function fetchData() {
       let invoices = await getInvoiceData(true, undefined, selectedClient?.id);
       invoices = invoices.filter((invoice) => invoice.attributes.amountPaid === 0);
+      let memos = await getInvoiceData(false, undefined, selectedClient?.id);
+      memos = memos.filter((invoice) => invoice.attributes.amountPaid === 0);
       console.log(invoices);
       setAvailableInvoices(invoices);
+      setAvailableInvoices(memos.concat(invoices));
     }
     if (selectedClient) {
       setClientError(false);
@@ -75,7 +78,7 @@ export default function CreateInvoiceOrMemo() {
     resolver: zodResolver(formSchema),
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!selectedClient) {
       setClientError(true);
       return;
@@ -86,13 +89,14 @@ export default function CreateInvoiceOrMemo() {
     }
 
     {
-      invoicesToPay.forEach(async (invoice) => {
+      for (let i = 0; i < invoicesToPay.length; i++) {
+        const invoice = invoicesToPay[i];
         const { requestUrl, mergedOptions } = buildStrapiRequest(
-          "/invoices/" + invoice.id,
+          `/${invoice.attributes.memoOrInvoice === "invoice" ? "invoices" : "memos"}/${invoice.id}`,
           {},
           {
             data: {
-              amountPaid: getInvoiceCost(invoice).total,
+              amountPaid: Math.abs(getInvoiceCost(invoice).total),
             },
           },
         );
@@ -100,13 +104,17 @@ export default function CreateInvoiceOrMemo() {
         console.log({ requestUrl, mergedOptions });
 
         await putAPIClient(requestUrl, mergedOptions);
-      });
+      }
 
       toast({
         className: "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4",
         title: "Successfully submitted payment.",
         variant: "green",
       });
+
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
     }
   }
 

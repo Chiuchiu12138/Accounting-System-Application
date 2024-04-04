@@ -89,34 +89,49 @@ export async function putAPIClient(requestUrl: string, mergedOptions: any = {}) 
   }
 }
 
+type InvoiceCost = { subtotal: number; gst: number; qst: number; total: number };
+
 export type InvoiceWithItems = Invoice & {
   items: ItemWithQuantity[];
+  cost: InvoiceCost;
 };
 
 export type ItemWithQuantity = Item & {
   quantity: number;
 };
 
-export function getInvoiceCost(invoice: InvoiceWithItems): { subtotal: number; gst: number; qst: number; total: number } {
+export function getInvoiceCost(invoice: InvoiceWithItems): InvoiceCost {
   const gstTax = 0.05;
   const qstTax = 0.0975;
-
+  const isInvoice = invoice.attributes.memoOrInvoice === "invoice";
   let subtotal: number, qst: number, gst: number;
   subtotal = invoice.items.reduce((accumulator, currentItem) => {
     // Adding the line total of the current item to the accumulator
-    return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0);
+    if (isInvoice) {
+      return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0);
+    } else {
+      return accumulator - (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0);
+    }
   }, 0);
   qst = invoice.items.reduce((accumulator, currentItem) => {
     // Adding the line total of the current item to the accumulator
     if (currentItem.attributes.type == Type.Sales) {
-      return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0) * qstTax;
+      if (isInvoice) {
+        return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0) * qstTax;
+      } else {
+        return accumulator - (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0) * qstTax;
+      }
     }
     return accumulator;
   }, 0);
   gst = invoice.items.reduce((accumulator, currentItem) => {
     // Adding the line total of the current item to the accumulator
     if (currentItem.attributes.type == Type.Sales) {
-      return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0) * gstTax;
+      if (isInvoice) {
+        return accumulator + (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0) * gstTax;
+      } else {
+        return accumulator - (currentItem.quantity ?? 0) * (currentItem?.attributes.unitPrice ?? 0) * gstTax;
+      }
     }
     return accumulator;
   }, 0);
@@ -161,6 +176,7 @@ export async function getInvoiceData(
     });
     delete invoice.attributes.Items;
     invoice.items = result2;
+    invoice.cost = getInvoiceCost(invoice);
     invoiceReturn = invoiceReturn.concat({ ...invoice });
     console.log(invoiceReturn);
   }
