@@ -15,7 +15,10 @@ import { Calendar } from "../shadcn/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../shadcn/popover";
 import Link from "next/link";
 
+import { useRouter } from "next/navigation";
+
 export default function BalanceSheetDialog({ mode }: { mode: "financial-statement" | "balance-sheet" }) {
+  const router = useRouter();
   const formSchema = z.object({
     date: z.date().optional(),
   });
@@ -25,8 +28,12 @@ export default function BalanceSheetDialog({ mode }: { mode: "financial-statemen
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    alert("submitted");
-    console.log(values);
+    if (!values.date) values.date = new Date();
+    if (mode === "financial-statement") {
+      router.push(`/reports/financial-statement?ending=${values.date!.toISOString()}`);
+    } else {
+      router.push(`/reports/balance-sheet?ending=${values.date!.toISOString()}`);
+    }
   }
 
   const modeText = mode === "financial-statement" ? "Financial Statement" : "Balance Sheet";
@@ -71,19 +78,9 @@ export default function BalanceSheetDialog({ mode }: { mode: "financial-statemen
                 <br></br>
               </div>
               <div className="flex w-full flex-col items-center">
-                {mode === "financial-statement" ? (
-                  <Link className="w-full" href="/reports/financial-statement">
-                    <Button type="submit" size="sm" variant="hightlighted" className="w-full">
-                      Go
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link className="w-full" href="/reports/balance-sheet">
-                    <Button type="submit" size="sm" variant="hightlighted" className="w-full">
-                      Go
-                    </Button>
-                  </Link>
-                )}
+                <Button type="submit" size="sm" variant="hightlighted" className="w-full">
+                  Go
+                </Button>
               </div>
             </form>
           </Form>

@@ -68,7 +68,7 @@ export default function SignupDialog() {
         setAuthScreen(AuthScreen.CONFIRMEMAIL);
       })
       .catch((error) => {
-        console.log("An error occurred:", error.response);
+        console.error("An error occurred:", error.response);
         setSignupError(error.response.data.error.message);
       });
   }

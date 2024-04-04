@@ -3,7 +3,6 @@
 import { useSearchParams } from "next/navigation";
 
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../_components/shadcn/table";
-import { Input } from "../../_components/shadcn/input";
 import { Button } from "../../_components/shadcn/button";
 import { InvoiceWithItems, getInvoiceCost, getInvoiceData } from "../../_utils/strapiApi";
 import { useEffect, useState } from "react";
@@ -12,7 +11,7 @@ export default function BalanceSheet() {
   // ?from=2024-04-03T07:00:00.000Z&to=2024-04-18T07:00:00.000Z
   const searchParams = useSearchParams();
 
-  const date: Date = new Date(decodeURIComponent(searchParams.get("from") ?? new Date().toISOString()));
+  const date: Date = new Date(decodeURIComponent(searchParams.get("ending") ?? new Date().toISOString()));
 
   const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
   const [memoData, setMemoData] = useState<InvoiceWithItems[]>([]);
@@ -20,19 +19,29 @@ export default function BalanceSheet() {
   useEffect(() => {
     async function fetchData() {
       let invoices = await getInvoiceData(true, undefined, undefined);
-      console.log(invoices);
-      setInvoiceData(invoices);
 
       let memos = await getInvoiceData(false, undefined, undefined);
-      console.log(memos);
-      setMemoData(memos);
+
+      const from = new Date(date.getFullYear(), 0, 1);
+
+      let filteredInvoices = invoices.filter((invoice) => {
+        const asDate = new Date(invoice.attributes.date as unknown as string);
+        return asDate >= from && asDate <= date;
+      });
+
+      let filteredMemos = memos.filter((invoice) => {
+        const asDate = new Date(invoice.attributes.date as unknown as string);
+        return asDate >= from && asDate <= date;
+      });
+
+      setMemoData(filteredMemos);
+      setInvoiceData(filteredInvoices);
     }
     fetchData();
   }, []);
 
   const cash1 = invoiceData.concat(memoData).reduce((accumulator, currentItem) => {
     if (currentItem.attributes.client?.data && currentItem.attributes.amountPaid === Math.abs(currentItem.cost.total)) {
-      console.log("found payment to client: ", currentItem.cost.total);
       const val = currentItem.cost.total;
       return accumulator + val;
     } else {
@@ -42,7 +51,6 @@ export default function BalanceSheet() {
 
   const cash2 = invoiceData.concat(memoData).reduce((accumulator, currentItem) => {
     if (currentItem.attributes.supplier?.data && currentItem.attributes.amountPaid === Math.abs(currentItem.cost.total)) {
-      console.log("found payment to supplier: ", currentItem.cost.total);
       const val = currentItem.cost.total;
       return accumulator + val;
     } else {
@@ -68,7 +76,6 @@ export default function BalanceSheet() {
 
   const totalInvoice = invoiceData.reduce((accumulator, currentItem) => {
     if (currentItem.attributes.client?.data) {
-      console.log(getInvoiceCost(currentItem));
       return accumulator + getInvoiceCost(currentItem).total;
     } else {
       return accumulator;
@@ -77,14 +84,12 @@ export default function BalanceSheet() {
 
   const totalInvoiceSupplier = invoiceData.reduce((accumulator, currentItem) => {
     if (currentItem.attributes.supplier?.data) {
-      console.log(getInvoiceCost(currentItem));
       return accumulator + getInvoiceCost(currentItem).total;
     } else {
       return accumulator;
     }
   }, 0);
 
-  //all client payments - all supplier payments
   const totalInvoicePayments = invoiceData.reduce((accumulator, currentItem) => {
     if (currentItem.attributes.client?.data && currentItem.attributes.amountPaid === Math.abs(currentItem.cost.total)) {
       return accumulator + (currentItem.attributes.amountPaid ?? 0);
@@ -101,8 +106,6 @@ export default function BalanceSheet() {
     }
   }, 0);
 
-  const allClientPayments = totalInvoicePayments - totalMemoPayments;
-
   const totalInvoicePaymentsSupplier = invoiceData.reduce((accumulator, currentItem) => {
     if (currentItem.attributes.supplier?.data && currentItem.attributes.amountPaid === Math.abs(currentItem.cost.total)) {
       return accumulator + (currentItem.attributes.amountPaid ?? 0);
@@ -118,10 +121,6 @@ export default function BalanceSheet() {
       return accumulator;
     }
   }, 0);
-
-  const allSupplierPayments = totalInvoicePaymentsSupplier - totalMemoPaymentsSupplier;
-
-  console.log("CASH&&&&", cash1, cash2);
 
   const totalUnpaidInvoiceClient = totalInvoice - totalInvoicePayments;
   const totalUnpaidMemoClient = totalMemo - totalMemoPayments;
@@ -145,7 +144,6 @@ export default function BalanceSheet() {
     }
   }, 0);
 
-  //Sum all unpaid supplier invoice gst amounts
   const totalSupplierGST = invoiceData.concat(memoData).reduce((accumulator, currentItem) => {
     if (currentItem.attributes.supplier?.data) {
       return accumulator + getInvoiceCost(currentItem).gst;
@@ -162,29 +160,11 @@ export default function BalanceSheet() {
     }
   }, 0);
 
-  const one = invoiceData.concat(memoData).reduce((accumulator, currentItem) => {
-    const val = currentItem.cost.total;
-    return accumulator + val;
-  }, 0);
-
-  const two = invoiceData.reduce((accumulator, currentItem) => {
-    const val = currentItem.cost.total;
-    return accumulator + val;
-  }, 0);
-
-  const three = invoiceData.reduce((accumulator, currentItem) => {
-    const val = currentItem.cost.total;
-    return accumulator + val;
-  }, 0);
-
-  // console.log("cash", totalInvoicePayments, totalInvoicePaymentsSupplier);
-  // console.log("IANSFDIFNAOUJDSNFuj", totalUnpaidInvoiceClient, totalUnpaidMemoClient, totalInvoicePayments);
-
   //default to debit side
   //move to credit if negative
   const asset = {
     cash: cash1 - cash2, //all client payments - all supplier payments
-    accountReceivable: totalUnpaidInvoiceClient + totalUnpaidMemoClient, //sum of all unpaid client invoices - all memos + sum all payments to client
+    accountReceivable: totalUnpaidInvoiceClient + totalUnpaidMemoClient, //sum of all unpaid client invoices - all memos
     gstReceivable: totalSupplierGST, //Sum all unpaid supplier invoice gst amounts
     qstReceivable: totalSupplierQST, //Sum all unpaid supplier invoice gst amounts
   };
@@ -192,7 +172,7 @@ export default function BalanceSheet() {
   //default to credit side
   //move to debit if negative
   const liability = {
-    accountPayable: totalUnpaidInvoiceSupplier + totalUnpaidMemoSupplier, //sum all unpaid supplier invoices
+    accountPayable: totalUnpaidInvoiceSupplier + totalUnpaidMemoSupplier, //sum all unpaid supplier invoices - all memos
     gstPayable: totalClientGST, //Sum all unpaid client invoice gst amounts
     qstPayable: totalClientQST, //Sum all unpaid client invoice qst amounts
   };

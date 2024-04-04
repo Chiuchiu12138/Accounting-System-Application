@@ -10,17 +10,17 @@ export default async function Navbar() {
           px-2 align-middle text-white"
       >
         <Link href={"/"}>
-          <div className="w-fit pl-2 font-alumniSans text-3xl font-bold md:w-44">Site Name</div>
+          <div className="w-fit pl-2 font-alumniSans text-3xl font-bold md:w-44">BookBreeze</div>
         </Link>
         <div className="hidden font-dmSans text-sm font-normal md:inline-block [&>a]:mx-2">
-          <Link className={clsx("text-nowrap")} href="">
-            Link 1
+          <Link className={clsx("text-nowrap")} href="/dashboard">
+            Dashboard
           </Link>
-          <Link className={clsx("text-nowrap")} href="">
-            Link 2
+          <Link className={clsx("text-nowrap")} href="/">
+            Home
           </Link>
-          <Link className={clsx("text-nowrap")} href="">
-            Link 3
+          <Link className={clsx("text-nowrap")} href="/dashboard">
+            Reports
           </Link>
         </div>
 

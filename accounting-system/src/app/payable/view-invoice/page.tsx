@@ -33,7 +33,7 @@ export default function ViewInvoice() {
       const result = await getInvoiceData(mode === "invoice" ? true : false, parseInt(id ?? ""));
 
       setInvoice(result[0]);
-      setClient(result[0].attributes.client?.data);
+      setClient(result[0].attributes.supplier?.data);
     };
 
     fetchData();
@@ -54,19 +54,20 @@ export default function ViewInvoice() {
 
   return (
     <div>
-      <h1 className="mb-12 mt-8 text-center text-3xl font-gigabold">
+      <h1 className="mb-1 mt-8 text-center text-3xl font-gigabold">
         {mode === "invoice" ? "Invoice" : "Memo"} #{id}
       </h1>
+      <h1 className="text-1xl mb-12 mt-1 text-center font-gigabold">{invoice.attributes.date?.toString()}</h1>
 
-      <h1 className="mb-8 text-center text-lg font-gigabold">Client Info:</h1>
+      <h1 className="mb-8 text-center text-lg font-gigabold">Supplier Info:</h1>
       <div className="mb-16 flex w-full items-center">
         <div className="flex w-full flex-col gap-2 font-gigabold">
           <div className="flex gap-4">
-            <div className="w-1/2">Client ID:</div>
+            <div className="w-1/2">Supplier ID:</div>
             <div className="w-full rounded-lg bg-white p-2">{client?.id}</div>
           </div>
           <div className="flex gap-4">
-            <div className="w-1/2">Client Name:</div>
+            <div className="w-1/2">Supplier Name:</div>
             <div className="w-full rounded-lg bg-white p-2">{client?.attributes.name}</div>
           </div>
           <div className="flex gap-4">

@@ -61,7 +61,6 @@ export default function ResetPasswordDialog() {
         passwordConfirmation: values.confirmPassword,
       })
       .then((response) => {
-        console.log("Your user's password has been reset.", response);
         toast({
           duration: 4000,
           className: "top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4",
@@ -72,7 +71,7 @@ export default function ResetPasswordDialog() {
         setAuthScreen(AuthScreen.CLOSED);
       })
       .catch((error) => {
-        console.log("An error occurred:", error.response);
+        console.error("An error occurred:", error.response);
         setAuthScreen(AuthScreen.FORGOTPASSWORD);
         toast({
           duration: 4000,

@@ -52,6 +52,18 @@ export default function CreateInvoiceOrMemo({ mode }: { mode: "invoice" | "memo"
   const [selectedClient, setSelectedClient] = useState<Client | undefined>();
   const [clientError, setClientError] = useState<boolean>(false);
   const [dateError, setDateError] = useState<boolean>(false);
+  const [configuration, setConfiguration] = useState<any>();
+
+  useEffect(() => {
+    fetch("/api/configuration", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setConfiguration(data));
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +71,6 @@ export default function CreateInvoiceOrMemo({ mode }: { mode: "invoice" | "memo"
         const { requestUrl, mergedOptions } = buildStrapiRequest("/items");
         const result = await fetchAPIClient(requestUrl, mergedOptions);
         if (result?.data?.length) setAvailableItems(result.data);
-        console.log(result);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -120,8 +131,8 @@ export default function CreateInvoiceOrMemo({ mode }: { mode: "invoice" | "memo"
     return accumulator + currentItem.quantity * (currentItem.attributes.unitPrice ?? 0);
   }, 0);
 
-  const gstTax = 0.05;
-  const qstTax = 0.0975;
+  const gstTax = configuration?.gstRate / 10000;
+  const qstTax = configuration?.qstRate / 10000;
 
   const qst = invoiceItems.reduce((accumulator, currentItem) => {
     // Adding the line total of the current item to the accumulator
@@ -352,11 +363,7 @@ export default function CreateInvoiceOrMemo({ mode }: { mode: "invoice" | "memo"
             },
           );
 
-          console.log({ requestUrl, mergedOptions });
-
           const result = await postAPIClient(requestUrl, mergedOptions);
-
-          console.log(result);
 
           if (result) {
             toast({

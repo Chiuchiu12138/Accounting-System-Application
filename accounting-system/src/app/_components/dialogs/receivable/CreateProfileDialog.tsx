@@ -40,8 +40,6 @@ export default function CreateProfileDialog({ setSelectedClient }: { setSelected
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-
     const { requestUrl, mergedOptions } = buildStrapiRequest(
       "/clients",
       {},
@@ -58,11 +56,7 @@ export default function CreateProfileDialog({ setSelectedClient }: { setSelected
       },
     );
 
-    console.log(mergedOptions);
-
     const result = await postAPIClient(requestUrl, mergedOptions);
-
-    console.log(result);
 
     if (result) {
       setOpen(false);

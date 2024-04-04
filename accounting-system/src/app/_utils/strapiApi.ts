@@ -161,7 +161,6 @@ export async function getInvoiceData(
   // }
 
   for (const invoice of result.data) {
-    console.log("invoice", invoice);
     const { requestUrl, mergedOptions } = buildStrapiRequest("/items", {
       filters: {
         id: { $eq: invoice?.attributes.Items.map((item: { quantity: number; itemId: number }) => item.itemId) },
@@ -178,7 +177,6 @@ export async function getInvoiceData(
     invoice.items = result2;
     invoice.cost = getInvoiceCost(invoice);
     invoiceReturn = invoiceReturn.concat({ ...invoice });
-    console.log(invoiceReturn);
   }
 
   if (id !== undefined) {
@@ -188,10 +186,8 @@ export async function getInvoiceData(
   if (clientId !== undefined) {
     invoiceReturn = invoiceReturn.filter((invoice) => {
       if (invoice.attributes.client?.data) {
-        console.log("filtering client", invoice.attributes.client?.data);
         return invoice.attributes.client?.data.id === clientId;
       } else if (invoice.attributes.supplier?.data) {
-        console.log("filtering supplier", invoice.attributes.supplier?.data, clientId);
         return invoice.attributes.supplier?.data.id === clientId;
       }
     });

@@ -52,7 +52,6 @@ export default function CreateInvoiceOrMemo() {
       invoices = invoices.filter((invoice) => invoice.attributes.amountPaid === 0);
       let memos = await getInvoiceData(false, undefined, selectedClient?.id);
       memos = memos.filter((invoice) => invoice.attributes.amountPaid === 0);
-      console.log(invoices);
       setAvailableInvoices(memos.concat(invoices));
     }
     if (selectedClient) {
@@ -99,8 +98,6 @@ export default function CreateInvoiceOrMemo() {
             },
           },
         );
-
-        console.log({ requestUrl, mergedOptions });
 
         await putAPIClient(requestUrl, mergedOptions);
       }

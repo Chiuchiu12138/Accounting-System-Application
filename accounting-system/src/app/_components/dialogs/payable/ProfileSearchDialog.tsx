@@ -41,8 +41,6 @@ export default function ProfileSearchDialog({ setSelectedClient }: { setSelected
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-
     const { requestUrl, mergedOptions } = buildStrapiRequest("/suppliers", {
       filters: {
         id: { $contains: values.id },
@@ -52,8 +50,6 @@ export default function ProfileSearchDialog({ setSelectedClient }: { setSelected
         address: { $contains: values.address },
       },
     });
-
-    console.log(mergedOptions);
 
     const result = await fetchAPIClient(requestUrl, mergedOptions);
     setClients(result.data);

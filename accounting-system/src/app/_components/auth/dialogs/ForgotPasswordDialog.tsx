@@ -41,7 +41,7 @@ export default function ForgotPasswordDialog() {
         setTimeout(() => setCanResendEmail(true), 10 * 1000);
       })
       .catch((error) => {
-        console.log("An error occurred:", error.response);
+        console.error("An error occurred:", error.response);
       });
   }
 

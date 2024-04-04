@@ -25,7 +25,7 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
   const formSchema = z.object({
     date: z.date().optional(),
     invoiceId: z.string().optional(),
-    clientId: z.number().optional(),
+    clientId: z.string().optional(),
     clientName: z.string().optional(),
     phoneNumber: z.string().optional(),
     email: z.string().optional(),
@@ -37,8 +37,6 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-
     const { requestUrl, mergedOptions } = buildStrapiRequest(`/${mode === "invoice" ? "invoices" : "memos"}`, {
       filters: {
         id: { $contains: values.invoiceId },
@@ -55,9 +53,8 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
     });
 
     const result = await fetchAPIClient(requestUrl, mergedOptions);
-    console.log(result);
+
     result.data = result.data.filter((invoice: any) => {
-      console.log(invoice.attributes);
       return invoice.attributes.supplier.data;
     });
     setInvoices(result.data);
@@ -127,7 +124,7 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
                       <FormLabel>Supplier ID</FormLabel>
                       <div className="flex">
                         <FormControl>
-                          <Input type="text" placeholder="Client ID..." {...field} />
+                          <Input type="text" placeholder="Supplier ID..." {...field} />
                         </FormControl>
                       </div>
                       <FormMessage />
@@ -215,7 +212,7 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
                   <div>{invoice.id}</div>
                   <div>{invoice.attributes.date?.toString()}</div>
                   <div>{invoice.attributes.amountPaid === 0 ? "Unpaid" : "Paid"}</div>
-                  <Link href={`/receivable/view-invoice?mode=${mode}&id=${invoice.id}`}>
+                  <Link href={`/payable/view-invoice?mode=${mode}&id=${invoice.id}`}>
                     <Button variant="hightlighted" onClick={() => {}}>
                       Select
                     </Button>

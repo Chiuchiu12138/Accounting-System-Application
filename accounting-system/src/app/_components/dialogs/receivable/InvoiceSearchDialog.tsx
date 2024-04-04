@@ -25,7 +25,7 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
   const formSchema = z.object({
     date: z.date().optional(),
     invoiceId: z.string().optional(),
-    clientId: z.number().optional(),
+    clientId: z.string().optional(),
     clientName: z.string().optional(),
     phoneNumber: z.string().optional(),
     email: z.string().optional(),
@@ -37,8 +37,6 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-
     const { requestUrl, mergedOptions } = buildStrapiRequest(`/${mode === "invoice" ? "invoices" : "memos"}`, {
       filters: {
         id: { $contains: values.invoiceId },
@@ -53,8 +51,6 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
       },
       populate: "client, items",
     });
-
-    console.log(mergedOptions);
 
     const result = await fetchAPIClient(requestUrl, mergedOptions);
     result.data = result.data.filter((invoice: any) => {

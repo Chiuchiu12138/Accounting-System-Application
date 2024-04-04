@@ -26,8 +26,6 @@ export default function SalesRecord() {
   const from: Date = new Date(decodeURIComponent(searchParams.get("from") ?? new Date().toISOString()));
   const to: Date = new Date(decodeURIComponent(searchParams.get("to") ?? new Date().toISOString()));
 
-  console.log(from, to, showPaid);
-
   const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
   // const [memoData, setMemoData] = useState<InvoiceWithItems[]>([]);
 
@@ -35,11 +33,9 @@ export default function SalesRecord() {
     async function fetchData() {
       let invoices = await getInvoiceData(true, undefined, undefined);
       invoices = invoices.filter((invoice) => invoice.attributes.supplier?.data);
-      console.log(invoices);
 
       let memos = await getInvoiceData(false, undefined, undefined);
       memos = memos.filter((memo) => memo.attributes.supplier?.data);
-      console.log(memos);
       // setMemoData(memos);
 
       setInvoiceData(invoices.concat(memos));
@@ -47,17 +43,21 @@ export default function SalesRecord() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (!showPaid) {
-      setInvoiceData(
-        invoiceData.filter((invoice) => {
-          return invoice.attributes.amountPaid !== Math.abs(invoice.cost.total);
-        }),
-      );
-    }
-  }, [showPaid]);
+  let filteredInvoices = invoiceData;
 
-  console.log(invoiceData);
+  if (!showPaid) {
+    //remove invoices that are paid for
+    filteredInvoices = invoiceData.filter((invoice) => {
+      return invoice.attributes.amountPaid !== Math.abs(invoice.cost.total);
+    });
+  }
+
+  //remove invoices that do not fall in the selected date range
+  filteredInvoices = filteredInvoices.filter((invoice) => {
+    const asDate = new Date(invoice.attributes.date as unknown as string);
+    if (!invoice.attributes.date) return true;
+    return asDate >= from && asDate <= to;
+  });
 
   return (
     <div>
@@ -80,7 +80,7 @@ export default function SalesRecord() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoiceData.map((item) => (
+          {filteredInvoices.map((item) => (
             <TableRow key={item.attributes.supplier?.data?.id}>
               <TableCell className="font-medium">{item.attributes.supplier?.data?.id}</TableCell>
               <TableCell>{item.attributes.supplier?.data?.attributes?.name}</TableCell>
@@ -108,7 +108,7 @@ export default function SalesRecord() {
             <TableCell colSpan={3}>Total</TableCell>
             <TableCell>
               $
-              {invoiceData
+              {filteredInvoices
                 .reduce((accumulator, currentItem) => {
                   const salesTotal = currentItem.cost.subtotal;
                   return accumulator + salesTotal;
@@ -117,7 +117,7 @@ export default function SalesRecord() {
             </TableCell>
             <TableCell>
               $
-              {invoiceData
+              {filteredInvoices
                 .reduce((accumulator, currentItem) => {
                   const val = currentItem.cost.gst;
                   return accumulator + val;
@@ -126,7 +126,7 @@ export default function SalesRecord() {
             </TableCell>
             <TableCell>
               $
-              {invoiceData
+              {filteredInvoices
                 .reduce((accumulator, currentItem) => {
                   const val = currentItem.cost.qst;
                   return accumulator + val;
@@ -135,7 +135,7 @@ export default function SalesRecord() {
             </TableCell>
             <TableCell colSpan={3}>
               $
-              {invoiceData
+              {filteredInvoices
                 .reduce((accumulator, currentItem) => {
                   const val = currentItem.cost.total;
                   return accumulator + val;

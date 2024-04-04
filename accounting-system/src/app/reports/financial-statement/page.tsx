@@ -12,7 +12,7 @@ export default function FinancialStatement() {
   // ?from=2024-04-03T07:00:00.000Z&to=2024-04-18T07:00:00.000Z
   const searchParams = useSearchParams();
 
-  const date: Date = new Date(decodeURIComponent(searchParams.get("from") ?? new Date().toISOString()));
+  const date: Date = new Date(decodeURIComponent(searchParams.get("ending") ?? new Date().toISOString()));
 
   const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
   const [memoData, setMemoData] = useState<InvoiceWithItems[]>([]);
@@ -20,12 +20,23 @@ export default function FinancialStatement() {
   useEffect(() => {
     async function fetchData() {
       let invoices = await getInvoiceData(true, undefined, undefined);
-      console.log(invoices);
-      setInvoiceData(invoices);
 
       let memos = await getInvoiceData(false, undefined, undefined);
-      console.log(memos);
-      setMemoData(memos);
+
+      const from = new Date(date.getFullYear(), 0, 1);
+      //remove invoices that do not fall in the selected date range
+      let filteredInvoices = invoices.filter((invoice) => {
+        const asDate = new Date(invoice.attributes.date as unknown as string);
+        return asDate >= from && asDate <= date;
+      });
+
+      let filteredMemos = memos.filter((invoice) => {
+        const asDate = new Date(invoice.attributes.date as unknown as string);
+        return asDate >= from && asDate <= date;
+      });
+
+      setMemoData(filteredMemos);
+      setInvoiceData(filteredInvoices);
     }
     fetchData();
   }, []);
@@ -33,10 +44,8 @@ export default function FinancialStatement() {
   const totalMemoClient = { items: 0, salary: 0, misc: 0 };
 
   memoData.forEach((currentItem) => {
-    console.log("looping", currentItem.attributes.amountPaid, currentItem.cost.total);
     //if client invoice and is paid
     if (currentItem.attributes.client?.data && currentItem.attributes.amountPaid === Math.abs(currentItem.cost.total)) {
-      console.log("map thro if");
       currentItem.items.forEach((currentItem) => {
         if (currentItem.attributes.type === Type.Sales) {
           totalMemoClient.items += currentItem.attributes.unitPrice! * currentItem.quantity;
@@ -52,11 +61,9 @@ export default function FinancialStatement() {
   const totalInvoiceClient = { items: 0, salary: 0, misc: 0 };
 
   invoiceData.concat(memoData).forEach((currentItem) => {
-    // console.log("looping", currentItem.attributes.amountPaid, currentItem.cost.total);
     //if client invoice and is paid
     if (currentItem.attributes.client?.data) {
       let isMemo = currentItem.attributes.memoOrInvoice === "invoice" ? 1 : -1;
-      // console.log("map thro if");
       currentItem.items.forEach((currentItem) => {
         if (currentItem.attributes.type === Type.Sales) {
           totalInvoiceClient.items += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
@@ -72,11 +79,9 @@ export default function FinancialStatement() {
   const totalMemoSupplier = { items: 0, salary: 0, misc: 0 };
 
   memoData.forEach((currentItem) => {
-    console.log("looping", currentItem.attributes.amountPaid, currentItem.cost.total);
     //if client invoice and is paid
     if (currentItem.attributes.supplier?.data) {
       let isMemo = currentItem.attributes.memoOrInvoice === "invoice" ? 1 : -1;
-      console.log("map thro if");
       currentItem.items.forEach((currentItem) => {
         if (currentItem.attributes.type === Type.Sales) {
           totalMemoSupplier.items += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
@@ -92,11 +97,9 @@ export default function FinancialStatement() {
   const totalInvoiceSupplier = { items: 0, salary: 0, misc: 0 };
 
   invoiceData.concat(memoData).forEach((currentItem) => {
-    // console.log("looping", currentItem.attributes.amountPaid, currentItem.cost.total);
     //if client invoice and is paid
     if (currentItem.attributes.supplier?.data) {
       let isMemo = currentItem.attributes.memoOrInvoice === "invoice" ? 1 : -1;
-      // console.log("map thro if");
       currentItem.items.forEach((currentItem) => {
         if (currentItem.attributes.type === Type.Sales) {
           totalInvoiceSupplier.items += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
@@ -108,12 +111,6 @@ export default function FinancialStatement() {
       });
     }
   });
-
-  console.log("memo total", totalMemoClient);
-  console.log("inv total", totalInvoiceClient);
-
-  console.log("memo total suppl", totalMemoSupplier);
-  console.log("inv total supp", totalInvoiceSupplier);
 
   //defualt credit
   //move negative to other column

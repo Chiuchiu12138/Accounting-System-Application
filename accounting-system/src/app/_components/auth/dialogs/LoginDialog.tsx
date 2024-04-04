@@ -45,8 +45,6 @@ export default function LoginDialog() {
         password: values.password,
       })
       .then((response) => {
-        console.log("User profile", response.data.user);
-        console.log("User token", response.data.jwt);
         setAuthenticatedUser({ userInfo: response.data.user, userToken: response.data.jwt });
         setAuthScreen(AuthScreen.CLOSED);
         toast({
@@ -57,7 +55,7 @@ export default function LoginDialog() {
         });
       })
       .catch((error) => {
-        console.log("An error occurred:", error.response);
+        console.error("An error occurred:", error.response);
         setLoginError(error.response.data.error.message);
       });
   }

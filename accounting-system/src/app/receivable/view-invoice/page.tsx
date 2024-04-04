@@ -54,11 +54,12 @@ export default function ViewInvoice() {
 
   return (
     <div>
-      <h1 className="mb-12 mt-8 text-center text-3xl font-gigabold">
+      <h1 className="mb-1 mt-8 text-center text-3xl font-gigabold">
         {mode === "invoice" ? "Invoice" : "Memo"} #{id}
       </h1>
+      <h1 className="text-1xl mb-12 mt-1 text-center font-gigabold">{invoice.attributes.date?.toString()}</h1>
 
-      <h1 className="mb-8 text-center text-lg font-gigabold">Supplier Info:</h1>
+      <h1 className="mb-8 text-center text-lg font-gigabold">Client Info:</h1>
       <div className="mb-16 flex w-full items-center">
         <div className="flex w-full flex-col gap-2 font-gigabold">
           <div className="flex gap-4">

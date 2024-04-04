@@ -61,7 +61,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   function setAuthenticatedUserWrapper(user: AuthenticatedUser | undefined) {
-    console.log("setting authenticated user", user);
     localStorage.setItem("authenticatedUser", JSON.stringify(user));
     window.dispatchEvent(new Event("storage")); //make sure other tabs are aware of the new authenticatedUser state
     setAuthenticatedUser(user);
