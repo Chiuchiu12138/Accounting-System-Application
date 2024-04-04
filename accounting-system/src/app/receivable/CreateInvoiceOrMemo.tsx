@@ -55,7 +55,7 @@ export default function CreateInvoiceOrMemo({ mode }: { mode: "invoice" | "memo"
   const [configuration, setConfiguration] = useState<any>();
 
   useEffect(() => {
-    fetch("/api/configuration", {
+    fetch("/api", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
