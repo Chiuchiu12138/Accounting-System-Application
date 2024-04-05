@@ -1,6 +1,6 @@
 import { ReactNode, useContext, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../shadcn/dialog";
-import { AuthContext, AuthScreen } from "@/src/app/_providers/AuthProvider";
+import { AuthContext } from "@/src/app/_providers/AuthProvider";
 import { DialogFooter } from "../../shadcn/dialog";
 
 import { Input } from "../../../_components/shadcn/input";

@@ -22,9 +22,9 @@ export default function FinancialStatement() {
 
   useEffect(() => {
     async function fetchData() {
-      let invoices = await getInvoiceData(true, undefined, undefined);
+      let invoices = await getInvoiceData(true, undefined, undefined, authenticatedUser?.userInfo.id ?? -1);
 
-      let memos = await getInvoiceData(false, undefined, undefined);
+      let memos = await getInvoiceData(false, undefined, undefined, authenticatedUser?.userInfo.id ?? -1);
 
       const from = new Date(date.getFullYear(), 0, 1);
       //remove invoices that do not fall in the selected date range
