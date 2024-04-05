@@ -42,7 +42,7 @@ export default function RootLayout({
             <Toaster />
             <AuthenticationDialog></AuthenticationDialog>
             <Navbar></Navbar>
-            <div className="min-h-96">
+            <div data-testid="test" className="min-h-96">
               <RouteGuard>{children}</RouteGuard>
             </div>
             <Footer></Footer>

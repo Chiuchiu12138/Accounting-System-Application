@@ -8,7 +8,10 @@ export default function Navbar() {
   const { setAuthScreen } = useContext(AuthContext);
 
   return (
-    <div className="mt-40 flex w-full flex-col items-center justify-evenly gap-5 text-center sm:flex-row sm:items-start sm:text-left print:hidden">
+    <div
+      data-testid="footer"
+      className="mt-40 flex w-full flex-col items-center justify-evenly gap-5 text-center sm:flex-row sm:items-start sm:text-left print:hidden"
+    >
       {/* Title/Slogan */}
       <div className="flex max-w-72 flex-col">
         <span className={"mb-4 font-alumniSans text-6xl font-gigabold"}>

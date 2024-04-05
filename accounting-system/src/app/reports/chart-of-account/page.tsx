@@ -32,7 +32,7 @@ export default function ChartOfAccount() {
   ];
 
   return (
-    <div>
+    <div data-testid="chartofaccount">
       <h1 className="mb-16 mt-8 text-center text-3xl font-gigabold">Chart Of Account</h1>
       <Table>
         {/* <TableHeader>

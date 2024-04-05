@@ -2,10 +2,11 @@ import Link from "next/link";
 import RightNavbarSection from "@/src/app/_components/navbar/RightNavbarSection";
 import clsx from "clsx";
 
-export default async function Navbar() {
+export default function Navbar() {
   return (
     <div className="w-full print:hidden">
       <div
+        data-testid="navbar"
         className="mb-5 flex h-14 items-center justify-between rounded-full bg-customBlack
           px-2 align-middle text-white"
       >

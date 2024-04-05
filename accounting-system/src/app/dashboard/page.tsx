@@ -9,7 +9,7 @@ import SalesAndExpenseDialog from "../_components/dialogs/SalesAndExpenseDialog"
 
 export default function Home() {
   return (
-    <div className="mt-12 flex min-h-[80vh] w-full">
+    <div data-testid="dashboard" className="mt-12 flex min-h-[80vh] w-full">
       <div className="flex w-full flex-col justify-evenly gap-2 rounded-lg bg-white p-5">
         <h2 className="mb-7 w-full text-center text-2xl font-gigabold underline underline-offset-8">Account Receivable</h2>
         <div className="flex w-full flex-col">

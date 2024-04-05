@@ -5,9 +5,9 @@ import Image from "next/image";
 import welcomePageImage from "./images/image2.webp";
 
 //main home page user sees when going to base url
-export default async function Home() {
+export default function Home() {
   return (
-    <>
+    <div data-testid="homepage">
       {/* Hero */}
       <div
         className="flex h-auto max-h-screen w-full flex-col items-end justify-between gap-20 rounded-3xl bg-cover bg-center p-7 text-white sm:flex-row"
@@ -89,7 +89,7 @@ export default async function Home() {
       >
         Unlock Your Financial Potential
       </div>
-    </>
+    </div>
   );
 }
 
