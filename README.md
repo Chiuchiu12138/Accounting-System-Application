@@ -6,7 +6,9 @@ An accounting web app which allows users to track their finances.
 
 Visit https://bookbreeze-two.vercel.app/ to test the app.
 
-A downside of the free hosting that I found is that the server that hosts the backend takes a while to "wake up" after receiving a first request. So if the first login attempt doesn't work, wait a minute for the server to cold start and then reload the page and try again. It should be smooth after that.
+A downside of the free hosting that I found is that the server that hosts the backend takes a while to "wake up" after receiving a first request. So if the first login attempt doesn't work, wait a couple minutes for the server to cold start and then reload the page and try again. It should be smooth after that.
+
+![alt text](https://i.imgur.com/0loWoJJ.png)
 
 When signing up, the website sends an email to your email address with a link to click. This process verifies that you signing up with a real email.
 
