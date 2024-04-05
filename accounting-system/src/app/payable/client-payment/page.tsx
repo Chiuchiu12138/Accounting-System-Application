@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button } from "../../_components/shadcn/button";
 import { Calendar as CalendarIcon } from "lucide-react";
 import {
@@ -29,9 +29,11 @@ import { format, setDate } from "date-fns";
 import { useToast } from "@/src/app/_components/shadcn/use-toast";
 import { Client } from "@apiTypes/client/content-types/client/client";
 import { InvoiceWithItems, buildStrapiRequest, getInvoiceCost, getInvoiceData, putAPIClient } from "../../_utils/strapiApi";
+import { AuthContext } from "@/src/app/_providers/AuthProvider";
 
 export default function CreateInvoiceOrMemo() {
   const { toast } = useToast();
+  const { authenticatedUser } = useContext(AuthContext);
 
   type Invoice = {
     id: string;
@@ -48,9 +50,9 @@ export default function CreateInvoiceOrMemo() {
 
   useEffect(() => {
     async function fetchData() {
-      let invoices = await getInvoiceData(true, undefined, selectedClient?.id);
+      let invoices = await getInvoiceData(true, undefined, selectedClient?.id, authenticatedUser?.userInfo.id ?? -1);
       invoices = invoices.filter((invoice) => invoice.attributes.amountPaid === 0);
-      let memos = await getInvoiceData(false, undefined, selectedClient?.id);
+      let memos = await getInvoiceData(false, undefined, selectedClient?.id, authenticatedUser?.userInfo.id ?? -1);
       memos = memos.filter((invoice) => invoice.attributes.amountPaid === 0);
       setAvailableInvoices(invoices);
       setAvailableInvoices(memos.concat(invoices));

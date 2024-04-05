@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Button } from "../../_components/shadcn/button";
 import {
   Table,
@@ -16,6 +16,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { InvoiceWithItems, getInvoiceCost, getInvoiceData } from "../../_utils/strapiApi";
 import { Client } from "@apiTypes/client/content-types/client/client";
+import { AuthContext } from "../../_providers/AuthProvider";
 
 export default function ViewInvoice() {
   const [invoice, setInvoice] = useState<InvoiceWithItems>();
@@ -28,9 +29,16 @@ export default function ViewInvoice() {
 
   const mode = searchParams.get("mode");
 
+  const { authenticatedUser } = useContext(AuthContext);
+
   useEffect(() => {
     const fetchData = async () => {
-      const result = await getInvoiceData(mode === "invoice" ? true : false, parseInt(id ?? ""));
+      const result = await getInvoiceData(
+        mode === "invoice" ? true : false,
+        parseInt(id ?? ""),
+        undefined,
+        authenticatedUser?.userInfo.id ?? -1,
+      );
 
       setInvoice(result[0]);
       setClient(result[0].attributes.client?.data);

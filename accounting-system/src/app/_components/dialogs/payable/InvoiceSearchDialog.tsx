@@ -18,6 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../shadcn/popover";
 import { Invoice } from "@apiTypes/invoice/content-types/invoice/invoice";
 import { buildStrapiRequest, fetchAPIClient } from "../../../_utils/strapiApi";
 import Link from "next/link";
+import { AuthContext } from "@/src/app/_providers/AuthProvider";
 
 export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo" }) {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -36,6 +37,8 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
     resolver: zodResolver(formSchema),
   });
 
+  const { authenticatedUser } = useContext(AuthContext);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { requestUrl, mergedOptions } = buildStrapiRequest(`/${mode === "invoice" ? "invoices" : "memos"}`, {
       filters: {
@@ -47,6 +50,7 @@ export default function InvoiceSearchDialog({ mode }: { mode: "invoice" | "memo"
           email: { $contains: values.email },
           phone: { $contains: values.phoneNumber },
           name: { $contains: values.clientName },
+          user: { id: authenticatedUser?.userInfo.id },
         },
       },
       populate: "supplier,Items",

@@ -14,8 +14,9 @@ import {
 } from "../../_components/shadcn/table";
 import { Input } from "../../_components/shadcn/input";
 import { Button } from "../../_components/shadcn/button";
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useContext } from "react";
 import { InvoiceWithItems, getInvoiceData } from "../../_utils/strapiApi";
+import { AuthContext } from "../../_providers/AuthProvider";
 
 export default function SalesRecord() {
   // ?showPaid=true&from=2024-04-03T07:00:00.000Z&to=2024-04-18T07:00:00.000Z
@@ -28,12 +29,14 @@ export default function SalesRecord() {
 
   const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
 
+  const { authenticatedUser } = useContext(AuthContext);
+
   useEffect(() => {
     async function fetchData() {
-      let invoices = await getInvoiceData(true, undefined, undefined);
+      let invoices = await getInvoiceData(true, undefined, undefined, authenticatedUser?.userInfo.id ?? -1);
       invoices = invoices.filter((invoice) => invoice.attributes.client?.data);
 
-      let memos = await getInvoiceData(false, undefined, undefined);
+      let memos = await getInvoiceData(false, undefined, undefined, authenticatedUser?.userInfo.id ?? -1);
       memos = memos.filter((memo) => memo.attributes.client?.data);
 
       setInvoiceData(invoices.concat(memos));

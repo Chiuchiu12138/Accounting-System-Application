@@ -3,6 +3,10 @@ import { Media } from "@strapiTypes/schemas-to-ts/Media";
 import axios from "axios";
 import { Invoice } from "@apiTypes/invoice/content-types/invoice/invoice";
 import { Item, Type } from "@apiTypes/item/content-types/item/item";
+import { AuthContext } from "../_providers/AuthProvider";
+import { useContext } from "react";
+import { Supplier } from "@apiTypes/supplier/content-types/supplier/supplier";
+import { Client } from "@apiTypes/client/content-types/client/client";
 
 type ImageSize = "thumbnail" | "small" | "medium" | "large";
 /**
@@ -146,7 +150,8 @@ export function getInvoiceCost(invoice: InvoiceWithItems): InvoiceCost {
 export async function getInvoiceData(
   isInvoice: boolean,
   id: number | undefined,
-  clientId: number | undefined = undefined,
+  clientId: number | undefined,
+  loggedInUser: number,
 ): Promise<InvoiceWithItems[]> {
   const { requestUrl, mergedOptions } = buildStrapiRequest(`/${isInvoice ? "invoices" : "memos"}`, {
     populate: "Items,client,supplier",
@@ -154,13 +159,55 @@ export async function getInvoiceData(
   const result = await fetchAPIClient(requestUrl, mergedOptions);
   let invoiceReturn: InvoiceWithItems[] = [];
 
-  // if (id !== undefined) {
-  //   invoiceReturn = result.data.filter((i: any) => i.id == id);
-  // } else {
-  //   invoiceReturn = result.data;
-  // }
+  const clientsRequest = buildStrapiRequest(`/clients`, {
+    populate: "invoices,memos",
+    filters: {
+      user: {
+        id: loggedInUser,
+      },
+    },
+  });
 
-  for (const invoice of result.data) {
+  const clients: { data: Client[] } = await fetchAPIClient(clientsRequest.requestUrl, clientsRequest.mergedOptions);
+
+  const supplierRequest = buildStrapiRequest(`/suppliers`, {
+    populate: "invoices,memos",
+    filters: {
+      user: {
+        id: loggedInUser,
+      },
+    },
+  });
+
+  const suppliers: { data: Supplier[] } = await fetchAPIClient(supplierRequest.requestUrl, supplierRequest.mergedOptions);
+
+  let filteredResult = [];
+
+  filteredResult = result.data.filter((invoice: Invoice) => {
+    const clientThatOwnsInvoice = clients.data.find((client) => {
+      const clientInvoicesAndMemos = client.attributes.invoices.data.concat(client.attributes.memos.data);
+      let foundInvoice = clientInvoicesAndMemos.find((a) => {
+        return a.id === invoice.id;
+      });
+      return foundInvoice != undefined;
+    });
+    return clientThatOwnsInvoice;
+  });
+
+  filteredResult.concat(
+    result.data.filter((invoice: Invoice) => {
+      const clientThatOwnsInvoice = suppliers.data.find((client) => {
+        const clientInvoicesAndMemos = client.attributes.invoices.data.concat(client.attributes.memos.data);
+        let foundInvoice = clientInvoicesAndMemos.find((a) => {
+          return a.id === invoice.id;
+        });
+        return foundInvoice != undefined;
+      });
+      return clientThatOwnsInvoice;
+    }),
+  );
+
+  for (const invoice of filteredResult) {
     const { requestUrl, mergedOptions } = buildStrapiRequest("/items", {
       filters: {
         id: { $eq: invoice?.attributes.Items.map((item: { quantity: number; itemId: number }) => item.itemId) },

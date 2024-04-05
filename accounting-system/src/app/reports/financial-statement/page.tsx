@@ -4,9 +4,10 @@ import { useSearchParams } from "next/navigation";
 
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../_components/shadcn/table";
 import { Button } from "../../_components/shadcn/button";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { InvoiceWithItems, getInvoiceData } from "../../_utils/strapiApi";
 import { Type } from "@apiTypes/item/content-types/item/item";
+import { AuthContext } from "../../_providers/AuthProvider";
 
 export default function FinancialStatement() {
   // ?from=2024-04-03T07:00:00.000Z&to=2024-04-18T07:00:00.000Z
@@ -16,6 +17,8 @@ export default function FinancialStatement() {
 
   const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
   const [memoData, setMemoData] = useState<InvoiceWithItems[]>([]);
+
+  const { authenticatedUser } = useContext(AuthContext);
 
   useEffect(() => {
     async function fetchData() {

@@ -40,6 +40,8 @@ export default function ProfileSearchDialog({ setSelectedClient }: { setSelected
     resolver: zodResolver(formSchema),
   });
 
+  const { authenticatedUser } = useContext(AuthContext);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { requestUrl, mergedOptions } = buildStrapiRequest("/suppliers", {
       filters: {
@@ -48,6 +50,7 @@ export default function ProfileSearchDialog({ setSelectedClient }: { setSelected
         phone: { $contains: values.telephone },
         email: { $contains: values.email },
         address: { $contains: values.address },
+        user: { id: authenticatedUser?.userInfo.id },
       },
     });
 

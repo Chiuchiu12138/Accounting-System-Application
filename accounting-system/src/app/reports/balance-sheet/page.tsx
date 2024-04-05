@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../_components/shadcn/table";
 import { Button } from "../../_components/shadcn/button";
 import { InvoiceWithItems, getInvoiceCost, getInvoiceData } from "../../_utils/strapiApi";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../_providers/AuthProvider";
 
 export default function BalanceSheet() {
   // ?from=2024-04-03T07:00:00.000Z&to=2024-04-18T07:00:00.000Z
@@ -16,14 +17,17 @@ export default function BalanceSheet() {
   const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
   const [memoData, setMemoData] = useState<InvoiceWithItems[]>([]);
 
+  const { authenticatedUser } = useContext(AuthContext);
+
   useEffect(() => {
     async function fetchData() {
-      let invoices = await getInvoiceData(true, undefined, undefined);
+      let invoices = await getInvoiceData(true, undefined, undefined, authenticatedUser?.userInfo.id ?? -1);
 
-      let memos = await getInvoiceData(false, undefined, undefined);
+      let memos = await getInvoiceData(false, undefined, undefined, authenticatedUser?.userInfo.id ?? -1);
 
       const from = new Date(date.getFullYear(), 0, 1);
 
+      //remove invoices that do not fall in the selected date range
       let filteredInvoices = invoices.filter((invoice) => {
         const asDate = new Date(invoice.attributes.date as unknown as string);
         return asDate >= from && asDate <= date;

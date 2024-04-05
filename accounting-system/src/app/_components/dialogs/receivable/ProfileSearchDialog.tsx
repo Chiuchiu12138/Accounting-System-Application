@@ -1,6 +1,6 @@
 import { ReactNode, useContext, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../../shadcn/dialog";
-import { AuthContext, AuthScreen } from "@/src/app/_providers/AuthProvider";
+import { AuthContext } from "@/src/app/_providers/AuthProvider";
 import { DialogFooter } from "../../shadcn/dialog";
 
 import { Input } from "../../../_components/shadcn/input";
@@ -40,6 +40,8 @@ export default function ProfileSearchDialog({ setSelectedClient }: { setSelected
     resolver: zodResolver(formSchema),
   });
 
+  const { authenticatedUser } = useContext(AuthContext);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const { requestUrl, mergedOptions } = buildStrapiRequest("/clients", {
       filters: {
@@ -48,6 +50,7 @@ export default function ProfileSearchDialog({ setSelectedClient }: { setSelected
         phone: { $contains: values.telephone },
         email: { $contains: values.email },
         address: { $contains: values.address },
+        user: { id: authenticatedUser?.userInfo.id },
       },
     });
 
