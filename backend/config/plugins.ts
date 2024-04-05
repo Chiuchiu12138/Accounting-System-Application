@@ -12,8 +12,8 @@ export default ({ env }) => {
           amazon: "https://email.us-east-1.amazonaws.com",
         },
         settings: {
-          defaultFrom: "bookbreezewebapp@gmail.com",
-          defaultReplyTo: "bookbreezewebapp@gmail.com",
+          defaultFrom: "a1112chaohao@gmail.com",
+          defaultReplyTo: "a1112chaohao@gmail.com",
         },
       },
     },
