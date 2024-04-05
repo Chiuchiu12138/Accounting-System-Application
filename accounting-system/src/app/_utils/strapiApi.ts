@@ -194,7 +194,7 @@ export async function getInvoiceData(
     return clientThatOwnsInvoice;
   });
 
-  filteredResult.concat(
+  filteredResult = filteredResult.concat(
     result.data.filter((invoice: Invoice) => {
       const clientThatOwnsInvoice = suppliers.data.find((client) => {
         const clientInvoicesAndMemos = client.attributes.invoices.data.concat(client.attributes.memos.data);

@@ -44,23 +44,6 @@ export default function FinancialStatement() {
     fetchData();
   }, []);
 
-  const totalMemoClient = { items: 0, salary: 0, misc: 0 };
-
-  memoData.forEach((currentItem) => {
-    //if client invoice and is paid
-    if (currentItem.attributes.client?.data && currentItem.attributes.amountPaid === Math.abs(currentItem.cost.total)) {
-      currentItem.items.forEach((currentItem) => {
-        if (currentItem.attributes.type === Type.Sales) {
-          totalMemoClient.items += currentItem.attributes.unitPrice! * currentItem.quantity;
-        } else if (currentItem.attributes.type === Type.Labor) {
-          totalMemoClient.salary += currentItem.attributes.unitPrice! * currentItem.quantity;
-        } else if (currentItem.attributes.type === Type.Misc) {
-          totalMemoClient.misc += currentItem.attributes.unitPrice! * currentItem.quantity;
-        }
-      });
-    }
-  });
-
   const totalInvoiceClient = { items: 0, salary: 0, misc: 0 };
 
   invoiceData.concat(memoData).forEach((currentItem) => {
@@ -74,24 +57,6 @@ export default function FinancialStatement() {
           totalInvoiceClient.salary += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
         } else if (currentItem.attributes.type === Type.Misc) {
           totalInvoiceClient.misc += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
-        }
-      });
-    }
-  });
-
-  const totalMemoSupplier = { items: 0, salary: 0, misc: 0 };
-
-  memoData.forEach((currentItem) => {
-    //if client invoice and is paid
-    if (currentItem.attributes.supplier?.data) {
-      let isMemo = currentItem.attributes.memoOrInvoice === "invoice" ? 1 : -1;
-      currentItem.items.forEach((currentItem) => {
-        if (currentItem.attributes.type === Type.Sales) {
-          totalMemoSupplier.items += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
-        } else if (currentItem.attributes.type === Type.Labor) {
-          totalMemoSupplier.salary += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
-        } else if (currentItem.attributes.type === Type.Misc) {
-          totalMemoSupplier.misc += currentItem.attributes.unitPrice! * currentItem.quantity * isMemo;
         }
       });
     }
