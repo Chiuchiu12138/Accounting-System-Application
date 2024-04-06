@@ -1,0 +1,96 @@
+Software Design Document
+
+
+1. Introduction
+
+The accounting web app is designed to assist business owners in tracking invoices and memos from clients and suppliers. It provides functionalities for managing financial transactions and generating reports such as balance sheets and financial statements. The application targets business owners who need to maintain accurate records of their finances.
+
+
+2. Functional Requirements
+
+Core Features:
+
+Invoice and Memo Management:
+    Users can enter client invoices and memos.
+    Users can enter supplier invoices and memos.
+    Ability to search invoices and memos.
+Financial Transactions:
+    Users can pay invoices and memos.
+Reporting:
+    View reports such as Balance Sheet, Financial Statement, Sales Record, and Expense Record.
+    Chart of Accounts for financial overview.
+User Management:
+    Authentication system for user signup, signin, password reset, and logout.
+    Role-based access control for managing user permissions.
+Modules/Sections:
+    The application consists of modules for invoice management, memo management, payment processing, reporting, and user management.
+
+
+3. Non-Functional Requirements
+
+Performance: Ensure accurate data representation in reports.
+Security: Implement authentication, role-based access control, secure password storage, and CORS settings.
+Compliance: No specific compliance standards required.
+
+
+4. Technology Stack
+
+Frontend: Next.js, TypeScript
+Backend: Strapi, custom backend with Next.js and SQLite
+Other: React for UI components
+
+
+5. User Interface Design
+
+Design: Modern design with shades of gray, black, white, and hazard yellow for highlights.
+Branding: Follow branding guidelines for consistent design elements.
+
+
+6. Data Model
+
+Tables: Memos, Invoices, Suppliers, Clients, Payments, User Accounts
+Database: SQLite
+
+
+7. Integration Points
+
+AWS SES: Integration for sending emails.
+
+
+8. Testing Strategy
+
+Testing Types: Unit testing and integration testing.
+Frameworks: Vitest, React Testing Library
+
+
+9. Deployment Strategy
+
+Frontend: Deployed on Vercel.
+Backend: Deployed on Render.
+Requirements: Webserver capable of running Node.js for backend deployment.
+
+
+10. Maintenance and Support
+
+Maintenance: No plans for ongoing maintenance after submission.
+Future Updates: No plans for future updates or enhancements after submission.
+
+
+11. Timeline
+
+Period 1: Project Initiation and Development
+
+	Define project scope and requirements.
+	Set up development environment and finalize technology stack.
+	Frontend: Develop UI components, implement functionalities.
+	Backend: Set up backend, develop custom functionalities, integrate with AWS SES.
+	
+Period 2: Testing and Debugging
+
+	Conduct unit tests, integration tests, and user acceptance testing.
+	Address any bugs or issues identified during testing.
+	
+Period 3: Deployment and Finalization
+
+	Deploy frontend to Vercel, backend to Render.
+	Perform final optimizations, prepare documentation, and submit project.
