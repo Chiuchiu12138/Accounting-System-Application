@@ -14,13 +14,15 @@ When signing up, the website sends an email to your email address with a link to
 
 Unfortunately though, AWS has not yet approved my request for AWS SES production level access so I can't send emails to email addresses that I don't own.
 
-Since the signup will not work for that reason, you can just skip the signup process and login with this public test account instead:
+Since the signup will not work with unapproved emails for that reason, you can use this approved email instead:
 
 #### bookbreezewebapp@gmail.com
 
-#### password123
+#### bookbreeze123
 
-Here are screenshots of what the signup would look like if you were able to test it:
+Those are actual login details for a real gmail account. You can log in to click the links it recieves in order to test the email confirmation and reset password features.
+
+Or if that is too involved, here's some screenshots of it working:
 
 ![alt text](https://i.imgur.com/bkujPlP.png)
 ![alt text](https://i.imgur.com/FuXDCl1.png)
