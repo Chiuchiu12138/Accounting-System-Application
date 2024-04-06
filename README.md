@@ -16,17 +16,13 @@ Unfortunately though, AWS has not yet approved my request for AWS SES production
 
 Since the signup will not work with unapproved emails for that reason, you can use this approved email instead:
 
+You can login Gmail using following email account to test the Sign-up and Forget password functions
+
 #### bookbreezewebapp@gmail.com
 
 #### bookbreeze123
 
 Those are actual login details for a real gmail account. You can log in to click the links it recieves in order to test the email confirmation and reset password features.
-
-Or if that is too involved, here's some screenshots of it working:
-
-![alt text](https://i.imgur.com/bkujPlP.png)
-![alt text](https://i.imgur.com/FuXDCl1.png)
-![alt text](https://i.imgur.com/CNlKWyB.png)
 
 ## Run Locally
 
