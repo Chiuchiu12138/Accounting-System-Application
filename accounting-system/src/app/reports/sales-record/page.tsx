@@ -31,7 +31,7 @@ export default function SalesRecord() {
   dayBeforeFrom.setDate(from.getDate() - 1);
 
   const dayAfterTo = new Date(to.getTime());
-  dayAfterTo.setDate(to.getDate() - 1);
+  dayAfterTo.setDate(to.getDate() + 1);
 
   const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
 
