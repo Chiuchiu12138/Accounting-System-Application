@@ -19,7 +19,14 @@ function RouteGuard({ children }: { children: ReactNode }) {
 
   function authCheck(url: string) {
     // redirect to login page if accessing a private page and not logged in
-    const publicPaths = ["/", ""];
+    const publicPaths = [
+      "/",
+      "",
+      "/auth/reset-password-return",
+      "/auth/reset-password-return/",
+      "/auth/confirm-email-return",
+      "/auth/confirm-email-return/",
+    ];
     const path = url.split("?")[0];
     if (!authenticatedUser?.userToken && !publicPaths.includes(path)) {
       setAuthorized(false);

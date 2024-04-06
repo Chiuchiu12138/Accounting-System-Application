@@ -65,7 +65,7 @@ Start the server
 Go to the backend folder
 
 ```bash
-  cd accounting-system
+  cd backend
 ```
 
 Install dependencies

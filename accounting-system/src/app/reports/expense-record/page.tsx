@@ -64,7 +64,7 @@ export default function SalesRecord() {
 
   return (
     <div>
-      <h1 className="mb-4 mt-8 text-center text-3xl font-gigabold">{showPaid ? "Sales Report" : "Account Receivable Report"}</h1>
+      <h1 className="mb-4 mt-8 text-center text-3xl font-gigabold">{showPaid ? "Expense Report" : "Account Payable Report"}</h1>
       <h1 className="mb-12 text-center text-xl font-gigabold">
         {from.toDateString()} - {to.toDateString()}
       </h1>
