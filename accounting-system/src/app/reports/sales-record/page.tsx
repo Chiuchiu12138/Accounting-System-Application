@@ -27,6 +27,12 @@ export default function SalesRecord() {
   const from: Date = new Date(decodeURIComponent(searchParams.get("from") ?? new Date().toISOString()));
   const to: Date = new Date(decodeURIComponent(searchParams.get("to") ?? new Date().toISOString()));
 
+  const dayBeforeFrom = new Date(from.getTime());
+  dayBeforeFrom.setDate(from.getDate() - 1);
+
+  const dayAfterTo = new Date(to.getTime());
+  dayAfterTo.setDate(to.getDate() - 1);
+
   const [invoiceData, setInvoiceData] = useState<InvoiceWithItems[]>([]);
 
   const { authenticatedUser } = useContext(AuthContext);
@@ -56,7 +62,7 @@ export default function SalesRecord() {
   filteredInvoices = filteredInvoices.filter((invoice) => {
     const asDate = new Date(invoice.attributes.date as unknown as string);
     if (!invoice.attributes.date) return true;
-    return asDate >= from && asDate <= to;
+    return asDate >= dayBeforeFrom && asDate <= dayAfterTo;
   });
 
   return (
