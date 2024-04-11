@@ -72,8 +72,8 @@ Requirements: Webserver capable of running Node.js for backend deployment.
 
 10. Maintenance and Support
 
-Maintenance: No plans for ongoing maintenance after submission.
-Future Updates: No plans for future updates or enhancements after submission.
+Maintenance: Will fix bugs by collecting users feedback periodically.
+Future Updates: Can add more features like Bank Reconciliation, Payroll, Inventory Management etc.
 
 
 11. Timeline
